@@ -1,4 +1,4 @@
-// server.js - Bluetooth Connector System (Fixed for Heroku)
+// server.js - Bluetooth Connector (FULLY FIXED)
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
@@ -11,27 +11,78 @@ const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST"],
-    credentials: true
+    methods: ["GET", "POST"]
   },
-  transports: ['websocket', 'polling']
+  transports: ['websocket', 'polling'],
+  allowEIO3: true
 });
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.urlencoded({ extended: true }));
 
-// Environment Variables with defaults
+// Serve static files - IMPORTANT: Create public folder
+const publicPath = path.join(__dirname, 'public');
+app.use(express.static(publicPath));
+
+// Environment Variables
 const PORT = process.env.PORT || 3000;
 const MAX_DEVICES = parseInt(process.env.MAX_DEVICES) || 50;
-const ADMIN_CODE = process.env.ADMIN_CODE || 'ADMIN123';
 const IS_FREE_MODE = process.env.IS_FREE_MODE === 'true' || true;
 
-// Store active rooms and devices
+// Store data
 const rooms = new Map();
 const devices = new Map();
 
+console.log('🚀 Server starting...');
+console.log('📁 Public path:', publicPath);
+console.log('⚙️ Max devices:', MAX_DEVICES);
+
+// Health check
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    rooms: rooms.size,
+    devices: devices.size
+  });
+});
+
+// API Routes - Without error throwing
+app.get('/api/rooms', (req, res) => {
+  try {
+    const activeRooms = Array.from(rooms.values()).map(room => ({
+      roomId: room.roomId,
+      deviceCount: room.devices.size,
+      maxDevices: MAX_DEVICES,
+      createdAt: room.createdAt,
+      creator: room.deviceName
+    }));
+    res.json({ success: true, rooms: activeRooms, isFreeMode: IS_FREE_MODE });
+  } catch (error) {
+    console.error('API Error:', error);
+    res.json({ success: false, rooms: [], isFreeMode: IS_FREE_MODE });
+  }
+});
+
+app.get('/api/stats', (req, res) => {
+  res.json({
+    success: true,
+    totalRooms: rooms.size,
+    totalDevices: devices.size,
+    maxDevicesPerRoom: MAX_DEVICES,
+    uptime: process.uptime()
+  });
+});
+
+// Simple test endpoint
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API is working!', timestamp: Date.now() });
+});
+
+// Bluetooth Room Class
 class BluetoothRoom {
   constructor(roomId, creator, deviceName) {
     this.roomId = roomId;
@@ -59,67 +110,26 @@ class BluetoothRoom {
   broadcastToDevices(event, data, excludeDevice = null) {
     this.devices.forEach((device, deviceId) => {
       if (deviceId !== excludeDevice) {
-        io.to(device.socketId).emit(event, data);
+        const socket = io.sockets.sockets.get(device.socketId);
+        if (socket) {
+          socket.emit(event, data);
+        }
       }
     });
   }
 }
 
-// Health check endpoint for Heroku
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
-});
-
-// API Routes
-app.get('/api/rooms', (req, res) => {
-  try {
-    const activeRooms = Array.from(rooms.values()).map(room => ({
-      roomId: room.roomId,
-      deviceCount: room.devices.size,
-      maxDevices: MAX_DEVICES,
-      createdAt: room.createdAt,
-      creator: room.deviceName
-    }));
-    res.json({ rooms: activeRooms, isFreeMode: IS_FREE_MODE });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.get('/api/stats', (req, res) => {
-  res.json({
-    totalRooms: rooms.size,
-    totalDevices: devices.size,
-    maxDevicesPerRoom: MAX_DEVICES,
-    uptime: process.uptime(),
-    nodeVersion: process.version,
-    platform: process.platform
-  });
-});
-
-// Admin route for premium features
-app.post('/api/admin/upgrade', (req, res) => {
-  const { adminCode, roomId, newMaxDevices } = req.body;
-  if (adminCode !== ADMIN_CODE) {
-    return res.status(403).json({ error: 'Invalid admin code' });
-  }
-  
-  const room = rooms.get(roomId);
-  if (room) {
-    process.env.MAX_DEVICES = newMaxDevices;
-    res.json({ success: true, message: 'Room upgraded to premium' });
-  } else {
-    res.status(404).json({ error: 'Room not found' });
-  }
-});
-
 // Socket.IO Connection
 io.on('connection', (socket) => {
-  console.log(`New device connected: ${socket.id}`);
+  console.log(`✅ Device connected: ${socket.id}`);
 
-  // Create new room
-  socket.on('create-room', ({ deviceName, roomName }) => {
+  // Create room
+  socket.on('create-room', (data) => {
     try {
+      console.log('Create room request:', data);
+      const deviceName = data.deviceName || 'Anonymous';
+      const roomName = data.roomName || 'My Room';
+      
       const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
       const room = new BluetoothRoom(roomId, socket.id, deviceName);
       rooms.set(roomId, room);
@@ -128,7 +138,8 @@ io.on('connection', (socket) => {
       devices.set(socket.id, { roomId, deviceName, isCreator: true });
       
       socket.emit('room-created', {
-        roomId,
+        success: true,
+        roomId: roomId,
         roomCode: roomId,
         deviceId: socket.id,
         maxDevices: MAX_DEVICES
@@ -139,15 +150,25 @@ io.on('connection', (socket) => {
         devices: Array.from(room.devices.values())
       });
       
-      console.log(`Room created: ${roomId} by ${deviceName}`);
+      console.log(`✅ Room created: ${roomId} by ${deviceName}`);
     } catch (error) {
-      socket.emit('error', { message: error.message });
+      console.error('Create room error:', error);
+      socket.emit('error', { message: 'Failed to create room: ' + error.message });
     }
   });
 
-  // Join existing room
-  socket.on('join-room', ({ roomId, deviceName }) => {
+  // Join room
+  socket.on('join-room', (data) => {
     try {
+      console.log('Join room request:', data);
+      const roomId = data.roomId?.toUpperCase();
+      const deviceName = data.deviceName || 'Guest';
+      
+      if (!roomId) {
+        socket.emit('error', { message: 'Room ID is required' });
+        return;
+      }
+      
       const room = rooms.get(roomId);
       if (!room) {
         socket.emit('error', { message: 'Room not found' });
@@ -164,17 +185,19 @@ io.on('connection', (socket) => {
       devices.set(socket.id, { roomId, deviceName, isCreator: false });
       
       socket.emit('joined-room', {
-        roomId,
+        success: true,
+        roomId: roomId,
         deviceId: socket.id,
         deviceCount: result.deviceCount
       });
       
       io.to(roomId).emit('device-joined', {
-        deviceName,
+        deviceName: deviceName,
         deviceCount: result.deviceCount,
         devices: Array.from(room.devices.values())
       });
       
+      // Sync if playing
       if (room.isPlaying && room.currentMedia) {
         socket.emit('sync-playback', {
           media: room.currentMedia,
@@ -182,15 +205,17 @@ io.on('connection', (socket) => {
         });
       }
       
-      console.log(`${deviceName} joined room: ${roomId}`);
+      console.log(`✅ ${deviceName} joined room: ${roomId}`);
     } catch (error) {
-      socket.emit('error', { message: error.message });
+      console.error('Join room error:', error);
+      socket.emit('error', { message: 'Failed to join room: ' + error.message });
     }
   });
 
-  // Start playback sync
-  socket.on('start-playback', ({ roomId, mediaUrl, mediaType }) => {
+  // Start playback
+  socket.on('start-playback', (data) => {
     try {
+      const { roomId, mediaUrl, mediaType } = data;
       const room = rooms.get(roomId);
       const device = devices.get(socket.id);
       
@@ -204,15 +229,17 @@ io.on('connection', (socket) => {
           startTime: Date.now()
         });
         
-        console.log(`Playback started in room: ${roomId}`);
+        console.log(`▶️ Playback started in room: ${roomId}`);
       }
     } catch (error) {
-      socket.emit('error', { message: error.message });
+      console.error('Start playback error:', error);
+      socket.emit('error', { message: 'Failed to start playback' });
     }
   });
 
-  // Sync playback position
-  socket.on('sync-position', ({ roomId, currentTime }) => {
+  // Sync position
+  socket.on('sync-position', (data) => {
+    const { roomId, currentTime } = data;
     const room = rooms.get(roomId);
     if (room) {
       room.syncTime = currentTime;
@@ -221,30 +248,32 @@ io.on('connection', (socket) => {
   });
 
   // Pause playback
-  socket.on('pause-playback', ({ roomId }) => {
+  socket.on('pause-playback', (data) => {
     try {
+      const { roomId } = data;
       const room = rooms.get(roomId);
       const device = devices.get(socket.id);
       
       if (room && device && device.isCreator) {
         room.isPlaying = false;
         io.to(roomId).emit('playback-paused');
-        console.log(`Playback paused in room: ${roomId}`);
+        console.log(`⏸️ Playback paused in room: ${roomId}`);
       }
     } catch (error) {
-      socket.emit('error', { message: error.message });
+      console.error('Pause playback error:', error);
     }
   });
 
-  // Volume control
-  socket.on('adjust-volume', ({ roomId, volume }) => {
+  // Adjust volume
+  socket.on('adjust-volume', (data) => {
+    const { roomId, volume } = data;
     const device = devices.get(socket.id);
     if (device && device.isCreator) {
       io.to(roomId).emit('volume-adjusted', { volume });
     }
   });
 
-  // Disconnect handling
+  // Disconnect
   socket.on('disconnect', () => {
     try {
       const device = devices.get(socket.id);
@@ -261,44 +290,43 @@ io.on('connection', (socket) => {
           if (device.isCreator) {
             rooms.delete(device.roomId);
             io.to(device.roomId).emit('room-closed', { message: 'Host disconnected' });
-            console.log(`Room closed: ${device.roomId}`);
-          } else if (room.devices.size === 0) {
-            rooms.delete(device.roomId);
+            console.log(`❌ Room closed: ${device.roomId}`);
           }
         }
         devices.delete(socket.id);
       }
-      console.log(`Device disconnected: ${socket.id}`);
+      console.log(`❌ Device disconnected: ${socket.id}`);
     } catch (error) {
       console.error('Disconnect error:', error);
     }
   });
 });
 
-// Serve frontend - Catch all route
+// Catch-all route for SPA - MUST be last
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(publicPath, 'index.html'), (err) => {
+    if (err) {
+      console.error('Error sending index.html:', err);
+      res.status(404).send('Frontend file not found. Please ensure public/index.html exists.');
+    }
+  });
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+  console.error('Global error:', err);
+  res.status(500).json({ error: err.message || 'Internal server error' });
 });
 
 // Start server
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Bluetooth Connector Server running on port ${PORT}`);
-  console.log(`📍 Mode: ${IS_FREE_MODE ? 'Free' : 'Premium'}`);
-  console.log(`📊 Max devices per room: ${MAX_DEVICES}`);
-  console.log(`🌐 Health check: http://localhost:${PORT}/health`);
-});
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, closing server...');
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
-  });
+  console.log(`\n✅ =====================================`);
+  console.log(`🎧 Bluetooth Connector Server Running!`);
+  console.log(`=====================================`);
+  console.log(`📍 Port: ${PORT}`);
+  console.log(`🌍 URL: http://localhost:${PORT}`);
+  console.log(`💊 Health: http://localhost:${PORT}/health`);
+  console.log(`📊 Mode: ${IS_FREE_MODE ? 'FREE' : 'PREMIUM'}`);
+  console.log(`👥 Max devices: ${MAX_DEVICES}`);
+  console.log(`=====================================\n`);
 });
