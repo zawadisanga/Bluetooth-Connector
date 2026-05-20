@@ -1,0 +1,21 @@
+{
+  "name": "Bluetooth Connector",
+  "description": "Global platform to sync audio/video across multiple devices",
+  "repository": "https://github.com/yourusername/bluetooth-connector",
+  "logo": "https://node-js-sample.herokuapp.com/node.png",
+  "keywords": ["node", "express", "socketio", "bluetooth", "streaming"],
+  "env": {
+    "MAX_DEVICES": {
+      "description": "Maximum devices per room",
+      "value": "50"
+    },
+    "IS_FREE_MODE": {
+      "description": "Free mode (true) or premium mode (false)",
+      "value": "true"
+    },
+    "ADMIN_CODE": {
+      "description": "Admin code for premium features",
+      "generator": "secret"
+    }
+  }
+}
