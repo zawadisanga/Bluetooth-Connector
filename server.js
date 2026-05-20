@@ -1,4 +1,4 @@
-// server.js - Bluetooth Connector System
+// server.js - Bluetooth Connector System (Fixed for Heroku)
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
@@ -11,18 +11,20 @@ const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST"]
-  }
+    methods: ["GET", "POST"],
+    credentials: true
+  },
+  transports: ['websocket', 'polling']
 });
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Environment Variables
+// Environment Variables with defaults
 const PORT = process.env.PORT || 3000;
-const MAX_DEVICES = process.env.MAX_DEVICES || 50;
+const MAX_DEVICES = parseInt(process.env.MAX_DEVICES) || 50;
 const ADMIN_CODE = process.env.ADMIN_CODE || 'ADMIN123';
 const IS_FREE_MODE = process.env.IS_FREE_MODE === 'true' || true;
 
@@ -63,85 +65,149 @@ class BluetoothRoom {
   }
 }
 
+// Health check endpoint for Heroku
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// API Routes
+app.get('/api/rooms', (req, res) => {
+  try {
+    const activeRooms = Array.from(rooms.values()).map(room => ({
+      roomId: room.roomId,
+      deviceCount: room.devices.size,
+      maxDevices: MAX_DEVICES,
+      createdAt: room.createdAt,
+      creator: room.deviceName
+    }));
+    res.json({ rooms: activeRooms, isFreeMode: IS_FREE_MODE });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/stats', (req, res) => {
+  res.json({
+    totalRooms: rooms.size,
+    totalDevices: devices.size,
+    maxDevicesPerRoom: MAX_DEVICES,
+    uptime: process.uptime(),
+    nodeVersion: process.version,
+    platform: process.platform
+  });
+});
+
+// Admin route for premium features
+app.post('/api/admin/upgrade', (req, res) => {
+  const { adminCode, roomId, newMaxDevices } = req.body;
+  if (adminCode !== ADMIN_CODE) {
+    return res.status(403).json({ error: 'Invalid admin code' });
+  }
+  
+  const room = rooms.get(roomId);
+  if (room) {
+    process.env.MAX_DEVICES = newMaxDevices;
+    res.json({ success: true, message: 'Room upgraded to premium' });
+  } else {
+    res.status(404).json({ error: 'Room not found' });
+  }
+});
+
 // Socket.IO Connection
 io.on('connection', (socket) => {
   console.log(`New device connected: ${socket.id}`);
 
-  // Create new room (Bluetooth Connector)
+  // Create new room
   socket.on('create-room', ({ deviceName, roomName }) => {
-    const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const room = new BluetoothRoom(roomId, socket.id, deviceName);
-    rooms.set(roomId, room);
-    
-    socket.join(roomId);
-    devices.set(socket.id, { roomId, deviceName, isCreator: true });
-    
-    socket.emit('room-created', {
-      roomId,
-      roomCode: roomId,
-      deviceId: socket.id,
-      maxDevices: MAX_DEVICES
-    });
-    
-    io.to(roomId).emit('room-update', {
-      deviceCount: room.devices.size,
-      devices: Array.from(room.devices.values())
-    });
+    try {
+      const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const room = new BluetoothRoom(roomId, socket.id, deviceName);
+      rooms.set(roomId, room);
+      
+      socket.join(roomId);
+      devices.set(socket.id, { roomId, deviceName, isCreator: true });
+      
+      socket.emit('room-created', {
+        roomId,
+        roomCode: roomId,
+        deviceId: socket.id,
+        maxDevices: MAX_DEVICES
+      });
+      
+      io.to(roomId).emit('room-update', {
+        deviceCount: room.devices.size,
+        devices: Array.from(room.devices.values())
+      });
+      
+      console.log(`Room created: ${roomId} by ${deviceName}`);
+    } catch (error) {
+      socket.emit('error', { message: error.message });
+    }
   });
 
   // Join existing room
   socket.on('join-room', ({ roomId, deviceName }) => {
-    const room = rooms.get(roomId);
-    if (!room) {
-      socket.emit('error', { message: 'Room not found' });
-      return;
-    }
+    try {
+      const room = rooms.get(roomId);
+      if (!room) {
+        socket.emit('error', { message: 'Room not found' });
+        return;
+      }
 
-    const result = room.addDevice(socket.id, deviceName, socket.id);
-    if (!result.success) {
-      socket.emit('error', { message: result.message });
-      return;
-    }
+      const result = room.addDevice(socket.id, deviceName, socket.id);
+      if (!result.success) {
+        socket.emit('error', { message: result.message });
+        return;
+      }
 
-    socket.join(roomId);
-    devices.set(socket.id, { roomId, deviceName, isCreator: false });
-    
-    socket.emit('joined-room', {
-      roomId,
-      deviceId: socket.id,
-      deviceCount: result.deviceCount
-    });
-    
-    // Notify all devices in room
-    io.to(roomId).emit('device-joined', {
-      deviceName,
-      deviceCount: result.deviceCount,
-      devices: Array.from(room.devices.values())
-    });
-    
-    // Sync current media if playing
-    if (room.isPlaying && room.currentMedia) {
-      socket.emit('sync-playback', {
-        media: room.currentMedia,
-        currentTime: room.syncTime
+      socket.join(roomId);
+      devices.set(socket.id, { roomId, deviceName, isCreator: false });
+      
+      socket.emit('joined-room', {
+        roomId,
+        deviceId: socket.id,
+        deviceCount: result.deviceCount
       });
+      
+      io.to(roomId).emit('device-joined', {
+        deviceName,
+        deviceCount: result.deviceCount,
+        devices: Array.from(room.devices.values())
+      });
+      
+      if (room.isPlaying && room.currentMedia) {
+        socket.emit('sync-playback', {
+          media: room.currentMedia,
+          currentTime: room.syncTime
+        });
+      }
+      
+      console.log(`${deviceName} joined room: ${roomId}`);
+    } catch (error) {
+      socket.emit('error', { message: error.message });
     }
   });
 
   // Start playback sync
   socket.on('start-playback', ({ roomId, mediaUrl, mediaType }) => {
-    const room = rooms.get(roomId);
-    const device = devices.get(socket.id);
-    
-    if (room && device && device.isCreator) {
-      room.isPlaying = true;
-      room.currentMedia = { url: mediaUrl, type: mediaType };
-      room.syncTime = 0;
+    try {
+      const room = rooms.get(roomId);
+      const device = devices.get(socket.id);
       
-      io.to(roomId).emit('playback-started', {
-        media: room.currentMedia,
-        startTime: Date.now()
-      });
+      if (room && device && device.isCreator) {
+        room.isPlaying = true;
+        room.currentMedia = { url: mediaUrl, type: mediaType };
+        room.syncTime = 0;
+        
+        io.to(roomId).emit('playback-started', {
+          media: room.currentMedia,
+          startTime: Date.now()
+        });
+        
+        console.log(`Playback started in room: ${roomId}`);
+      }
+    } catch (error) {
+      socket.emit('error', { message: error.message });
     }
   });
 
@@ -156,16 +222,21 @@ io.on('connection', (socket) => {
 
   // Pause playback
   socket.on('pause-playback', ({ roomId }) => {
-    const room = rooms.get(roomId);
-    const device = devices.get(socket.id);
-    
-    if (room && device && device.isCreator) {
-      room.isPlaying = false;
-      io.to(roomId).emit('playback-paused');
+    try {
+      const room = rooms.get(roomId);
+      const device = devices.get(socket.id);
+      
+      if (room && device && device.isCreator) {
+        room.isPlaying = false;
+        io.to(roomId).emit('playback-paused');
+        console.log(`Playback paused in room: ${roomId}`);
+      }
+    } catch (error) {
+      socket.emit('error', { message: error.message });
     }
   });
 
-  // Volume control (creator controls all)
+  // Volume control
   socket.on('adjust-volume', ({ roomId, volume }) => {
     const device = devices.get(socket.id);
     if (device && device.isCreator) {
@@ -175,75 +246,59 @@ io.on('connection', (socket) => {
 
   // Disconnect handling
   socket.on('disconnect', () => {
-    const device = devices.get(socket.id);
-    if (device) {
-      const room = rooms.get(device.roomId);
-      if (room) {
-        room.removeDevice(socket.id);
-        
-        io.to(device.roomId).emit('device-left', {
-          deviceName: device.deviceName,
-          deviceCount: room.devices.size
-        });
-        
-        // If creator leaves, delete room
-        if (device.isCreator) {
-          rooms.delete(device.roomId);
-          io.to(device.roomId).emit('room-closed', { message: 'Host disconnected' });
-        } else if (room.devices.size === 0) {
-          rooms.delete(device.roomId);
+    try {
+      const device = devices.get(socket.id);
+      if (device) {
+        const room = rooms.get(device.roomId);
+        if (room) {
+          room.removeDevice(socket.id);
+          
+          io.to(device.roomId).emit('device-left', {
+            deviceName: device.deviceName,
+            deviceCount: room.devices.size
+          });
+          
+          if (device.isCreator) {
+            rooms.delete(device.roomId);
+            io.to(device.roomId).emit('room-closed', { message: 'Host disconnected' });
+            console.log(`Room closed: ${device.roomId}`);
+          } else if (room.devices.size === 0) {
+            rooms.delete(device.roomId);
+          }
         }
+        devices.delete(socket.id);
       }
-      devices.delete(socket.id);
+      console.log(`Device disconnected: ${socket.id}`);
+    } catch (error) {
+      console.error('Disconnect error:', error);
     }
   });
 });
 
-// API Routes
-app.get('/api/rooms', (req, res) => {
-  const activeRooms = Array.from(rooms.values()).map(room => ({
-    roomId: room.roomId,
-    deviceCount: room.devices.size,
-    maxDevices: MAX_DEVICES,
-    createdAt: room.createdAt,
-    creator: room.deviceName
-  }));
-  res.json({ rooms: activeRooms, isFreeMode: IS_FREE_MODE });
-});
-
-app.get('/api/stats', (req, res) => {
-  res.json({
-    totalRooms: rooms.size,
-    totalDevices: devices.size,
-    maxDevicesPerRoom: MAX_DEVICES,
-    uptime: process.uptime()
-  });
-});
-
-// Admin route for premium features
-app.post('/api/admin/upgrade', (req, res) => {
-  const { adminCode, roomId, newMaxDevices } = req.body;
-  if (adminCode !== ADMIN_CODE) {
-    return res.status(403).json({ error: 'Invalid admin code' });
-  }
-  
-  const room = rooms.get(roomId);
-  if (room) {
-    // Premium feature: increase device limit
-    process.env.MAX_DEVICES = newMaxDevices;
-    res.json({ success: true, message: 'Room upgraded to premium' });
-  } else {
-    res.status(404).json({ error: 'Room not found' });
-  }
-});
-
-// Serve frontend
-app.get('/', (req, res) => {
+// Serve frontend - Catch all route
+app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-server.listen(PORT, () => {
-  console.log(`Bluetooth Connector Server running on port ${PORT}`);
-  console.log(`Mode: ${IS_FREE_MODE ? 'Free' : 'Premium'}`);
-  console.log(`Max devices per room: ${MAX_DEVICES}`);
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
+
+// Start server
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Bluetooth Connector Server running on port ${PORT}`);
+  console.log(`📍 Mode: ${IS_FREE_MODE ? 'Free' : 'Premium'}`);
+  console.log(`📊 Max devices per room: ${MAX_DEVICES}`);
+  console.log(`🌐 Health check: http://localhost:${PORT}/health`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, closing server...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
 });
