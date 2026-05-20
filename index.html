@@ -2,879 +2,246 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Bluetooth Connector - Global Sync Audio/Video Platform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bluetooth Connector</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: #fff;
-            transition: all 0.3s ease;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
             padding: 20px;
         }
-
-        /* Language Selector */
-        .language-selector {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            padding: 10px 15px;
-            border-radius: 50px;
-            display: flex;
-            gap: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .language-selector:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.05);
-        }
-
-        .lang-flag {
-            font-size: 1.5em;
-        }
-
-        .lang-dropdown {
-            position: absolute;
-            top: 60px;
-            right: 0;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-            padding: 10px;
-            display: none;
-            min-width: 150px;
-        }
-
-        .language-selector.active .lang-dropdown {
-            display: block;
-        }
-
-        .lang-option {
-            padding: 10px 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .lang-option:hover {
-            background: rgba(255,255,255,0.2);
-        }
-
-        /* Header */
-        .header {
-            text-align: center;
-            padding: 30px 0;
-            animation: fadeInDown 0.8s ease;
-        }
-
-        .header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #fff, #f0f0f0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 5px 15px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 20px;
-            font-size: 0.9em;
-            margin-top: 10px;
-        }
-
-        /* Main Content */
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-top: 30px;
-        }
-
-        /* Cards */
+        .container { max-width: 800px; margin: 0 auto; }
         .card {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 25px;
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: transform 0.3s ease;
+            padding: 30px;
+            margin: 20px 0;
+            color: white;
         }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card h2 {
-            margin-bottom: 20px;
-            font-size: 1.5em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Form Elements */
-        input, select, button {
+        h1 { text-align: center; margin-bottom: 30px; }
+        input, button {
             width: 100%;
             padding: 12px;
             margin: 10px 0;
             border: none;
             border-radius: 10px;
-            font-size: 1em;
+            font-size: 16px;
         }
-
-        input {
-            background: rgba(255,255,255,0.9);
-            color: #333;
-        }
-
         button {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             cursor: pointer;
-            transition: all 0.3s ease;
             font-weight: bold;
         }
-
-        button:hover {
-            transform: scale(1.02);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .room-info {
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-
-        .device-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .device-item {
-            background: rgba(255,255,255,0.1);
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .device-badge {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #4ade80;
-            border-radius: 50%;
-            margin-right: 8px;
-            animation: pulse 2s infinite;
-        }
-
-        /* Media Player */
-        .media-player {
-            margin-top: 20px;
-            display: none;
-        }
-
-        .media-player.active {
-            display: block;
-            animation: slideUp 0.5s ease;
-        }
-
-        audio, video {
-            width: 100%;
-            border-radius: 10px;
-            margin: 10px 0;
-        }
-
-        /* Premium Badge */
-        .premium-badge {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            margin-left: 10px;
-        }
-
-        /* Animations */
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            .language-selector {
-                top: 10px;
-                right: 10px;
-            }
-        }
-
-        .share-section {
-            margin-top: 20px;
-            text-align: center;
-        }
-
+        button:hover { transform: scale(1.02); }
         .room-code {
-            font-size: 2em;
-            font-weight: bold;
-            letter-spacing: 5px;
+            font-size: 24px;
+            text-align: center;
+            padding: 15px;
             background: rgba(0,0,0,0.3);
-            padding: 10px;
             border-radius: 10px;
             margin: 10px 0;
-            cursor: pointer;
-            transition: all 0.3s ease;
         }
-
-        .room-code:hover {
-            background: rgba(0,0,0,0.5);
-            transform: scale(1.02);
-        }
-
-        .volume-slider {
-            margin-top: 15px;
-        }
-
-        .volume-slider input {
-            width: 100%;
-            cursor: pointer;
-        }
+        .status { text-align: center; margin-top: 20px; }
+        .connected { color: #4ade80; }
     </style>
 </head>
 <body>
-    <!-- Language Selector -->
-    <div class="language-selector" onclick="toggleLanguageDropdown()">
-        <span class="lang-flag" id="currentLangFlag">🌍</span>
-        <span id="currentLangName">English</span>
-        <div class="lang-dropdown">
-            <div class="lang-option" onclick="changeLanguage('en', '🇺🇸', 'English')">
-                <span>🇺🇸</span> English
-            </div>
-            <div class="lang-option" onclick="changeLanguage('sw', '🇹🇿', 'Kiswahili')">
-                <span>🇹🇿</span> Kiswahili
-            </div>
-            <div class="lang-option" onclick="changeLanguage('fr', '🇫🇷', 'Français')">
-                <span>🇫🇷</span> Français
-            </div>
-            <div class="lang-option" onclick="changeLanguage('es', '🇪🇸', 'Español')">
-                <span>🇪🇸</span> Español
-            </div>
-            <div class="lang-option" onclick="changeLanguage('zh', '🇨🇳', '中文')">
-                <span>🇨🇳</span> 中文
-            </div>
-            <div class="lang-option" onclick="changeLanguage('ar', '🇸🇦', 'العربية')">
-                <span>🇸🇦</span> العربية
-            </div>
-        </div>
-    </div>
-
     <div class="container">
-        <div class="header">
+        <div class="card">
             <h1>🎧 Bluetooth Connector</h1>
-            <p id="tagline">Connect multiple devices, listen together globally!</p>
-            <div class="badge" id="modeBadge">Mode: Free (Up to 50 devices)</div>
-        </div>
-
-        <div class="main-content">
-            <!-- Create Room Section -->
-            <div class="card" id="createRoomCard">
-                <h2>📱 <span id="createRoomTitle">Create Room</span></h2>
-                <input type="text" id="deviceName" placeholder="Your device name (e.g., John's iPhone)">
-                <input type="text" id="roomName" placeholder="Room name (e.g., Movie Night)">
-                <button onclick="createRoom()" id="createRoomBtn">🚀 Create Bluetooth Connector</button>
-            </div>
-
-            <!-- Join Room Section -->
-            <div class="card" id="joinRoomCard">
-                <h2>🔗 <span id="joinRoomTitle">Join Room</span></h2>
-                <input type="text" id="joinRoomId" placeholder="Enter Room Code">
-                <input type="text" id="joinDeviceName" placeholder="Your name">
-                <button onclick="joinRoom()" id="joinRoomBtn">🎧 Connect Device</button>
-            </div>
-        </div>
-
-        <!-- Active Room Dashboard -->
-        <div class="card" id="activeRoomCard" style="display:none;">
-            <h2>🎯 <span id="activeRoomTitle">Your Room</span></h2>
-            <div class="room-info">
-                <div><span id="roomCodeLabel">Room Code</span>: <strong id="displayRoomCode"></strong> <span style="font-size:0.8em;">(click to copy)</span></div>
-                <div><span id="connectedDevicesLabel">Connected Devices</span>: <strong id="deviceCount">0</strong> / <span id="maxDevices"></span></div>
+            
+            <div id="createSection">
+                <h3>Create Room</h3>
+                <input type="text" id="deviceName" placeholder="Your device name">
+                <input type="text" id="roomName" placeholder="Room name">
+                <button onclick="createRoom()">Create Room</button>
             </div>
             
-            <div class="device-list" id="deviceList">
-                <h4 id="deviceListTitle">📱 Connected Devices:</h4>
+            <div id="joinSection">
+                <h3>Join Room</h3>
+                <input type="text" id="joinRoomId" placeholder="Room Code">
+                <input type="text" id="joinDeviceName" placeholder="Your name">
+                <button onclick="joinRoom()">Join Room</button>
             </div>
-
-            <!-- Media Controls for Creator -->
-            <div class="media-player" id="mediaControls">
-                <h3>🎬 <span id="mediaControlsTitle">Control Playback</span></h3>
-                <select id="mediaType">
-                    <option value="audio">🎵 Audio (Music/Podcast)</option>
-                    <option value="video">🎥 Video (Movie/Clip)</option>
-                </select>
-                <input type="text" id="mediaUrl" placeholder="Media URL (YouTube, MP3, MP4, etc.)">
-                <button onclick="startPlayback()" id="startPlaybackBtn">▶️ Start Streaming</button>
-                <button onclick="pausePlayback()" id="pausePlaybackBtn">⏸️ Pause</button>
-                <div class="volume-slider">
-                    <label id="volumeLabel">🔊 Volume:</label>
-                    <input type="range" id="volumeControl" min="0" max="100" value="70" onchange="adjustVolume()">
+            
+            <div id="activeRoom" style="display:none;">
+                <h3>Your Room</h3>
+                <div class="room-code" id="roomCode"></div>
+                <div>Connected: <span id="deviceCount">0</span> devices</div>
+                <div id="mediaControls" style="margin-top:20px;">
+                    <input type="text" id="mediaUrl" placeholder="Media URL (MP3, MP4, YouTube)">
+                    <select id="mediaType">
+                        <option value="audio">Audio</option>
+                        <option value="video">Video</option>
+                    </select>
+                    <button onclick="startPlayback()">▶ Start Streaming</button>
+                    <button onclick="pausePlayback()">⏸ Pause</button>
                 </div>
             </div>
-
-            <!-- Playback for Members -->
-            <div class="media-player" id="memberPlayback">
-                <h3>🎧 <span id="memberPlaybackTitle">Listening/ Watching</span></h3>
-                <div id="memberMediaPlayer"></div>
+            
+            <div id="memberPlayback" style="display:none; margin-top:20px;">
+                <h3>Playing:</h3>
+                <div id="player"></div>
             </div>
+            
+            <div class="status" id="status"></div>
         </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // Multi-language translations
-        const translations = {
-            en: {
-                tagline: "Connect multiple devices, listen together globally!",
-                createRoomTitle: "Create Room",
-                joinRoomTitle: "Join Room",
-                createRoomBtn: "🚀 Create Bluetooth Connector",
-                joinRoomBtn: "🎧 Connect Device",
-                activeRoomTitle: "Your Room",
-                roomCodeLabel: "Room Code",
-                connectedDevicesLabel: "Connected Devices",
-                deviceListTitle: "📱 Connected Devices:",
-                mediaControlsTitle: "Control Playback",
-                startPlaybackBtn: "▶️ Start Streaming",
-                pausePlaybackBtn: "⏸️ Pause",
-                volumeLabel: "🔊 Volume:",
-                memberPlaybackTitle: "Listening/Watching",
-                deviceNamePlaceholder: "Your device name (e.g., John's iPhone)",
-                roomNamePlaceholder: "Room name (e.g., Movie Night)",
-                joinRoomIdPlaceholder: "Enter Room Code",
-                joinDeviceNamePlaceholder: "Your name",
-                mediaUrlPlaceholder: "Media URL (YouTube, MP3, MP4, etc.)",
-                notifications: {
-                    roomCreated: "Room created! Code: ",
-                    roomJoined: "Successfully joined room!",
-                    joined: "joined the room!",
-                    left: "left the room!",
-                    playbackStarted: "Streaming started!",
-                    roomClosed: "Room closed by host!",
-                    copySuccess: "Room code copied!",
-                    invalidCode: "Please enter a room code!",
-                    invalidUrl: "Please enter a media URL!"
-                }
-            },
-            sw: {
-                tagline: "Unganisha vifaa vingi, sikilizeni pamoja duniani kote!",
-                createRoomTitle: "Unda Kikundi",
-                joinRoomTitle: "Ungana na Kikundi",
-                createRoomBtn: "🚀 Unda Bluetooth Connector",
-                joinRoomBtn: "🎧 Unganisha Kifaa",
-                activeRoomTitle: "Kikundi Chako",
-                roomCodeLabel: "Kodi ya Kikundi",
-                connectedDevicesLabel: "Vifaa Vilivyoungana",
-                deviceListTitle: "📱 Vifaa Vilivyoungana:",
-                mediaControlsTitle: "Dhibiti Matayarisho",
-                startPlaybackBtn: "▶️ Anza Kupeperusha",
-                pausePlaybackBtn: "⏸️ Simamisha",
-                volumeLabel: "🔊 Kiwango cha Sauti:",
-                memberPlaybackTitle: "Unasikiliza/Unaangalia",
-                deviceNamePlaceholder: "Jina la kifaa chako (mfano, iPhone ya John)",
-                roomNamePlaceholder: "Jina la kikundi (mfano, Sinema Usiku)",
-                joinRoomIdPlaceholder: "Weka Kodi ya Kikundi",
-                joinDeviceNamePlaceholder: "Jina lako",
-                mediaUrlPlaceholder: "URL ya media (YouTube, MP3, MP4, n.k.)",
-                notifications: {
-                    roomCreated: "Kikundi kimeundwa! Kodi: ",
-                    roomJoined: "Umeunganishwa kwenye kikundi!",
-                    joined: "amejiunga na kikundi!",
-                    left: "ametoka kwenye kikundi!",
-                    playbackStarted: "Matayarisho yameanza!",
-                    roomClosed: "Kikundi kimefungwa na mwenyeji!",
-                    copySuccess: "Kodi ya kikundi imenakiliwa!",
-                    invalidCode: "Tafadhali weka kodi ya kikundi!",
-                    invalidUrl: "Tafadhali weka URL ya media!"
-                }
-            },
-            fr: {
-                tagline: "Connectez plusieurs appareils, écoutez ensemble globalement!",
-                createRoomTitle: "Créer une Salle",
-                joinRoomTitle: "Rejoindre une Salle",
-                createRoomBtn: "🚀 Créer Bluetooth Connector",
-                joinRoomBtn: "🎧 Connecter l'Appareil",
-                activeRoomTitle: "Votre Salle",
-                roomCodeLabel: "Code Salle",
-                connectedDevicesLabel: "Appareils Connectés",
-                deviceListTitle: "📱 Appareils Connectés:",
-                mediaControlsTitle: "Contrôler la Lecture",
-                startPlaybackBtn: "▶️ Démarrer",
-                pausePlaybackBtn: "⏸️ Pause",
-                volumeLabel: "🔊 Volume:",
-                memberPlaybackTitle: "Écoute/Regarde",
-                deviceNamePlaceholder: "Nom de l'appareil (ex: iPhone de John)",
-                roomNamePlaceholder: "Nom de la salle (ex: Soirée Film)",
-                joinRoomIdPlaceholder: "Entrez le Code Salle",
-                joinDeviceNamePlaceholder: "Votre nom",
-                mediaUrlPlaceholder: "URL du média (YouTube, MP3, MP4, etc.)",
-                notifications: {
-                    roomCreated: "Salle créée! Code: ",
-                    roomJoined: "Vous avez rejoint la salle!",
-                    joined: "a rejoint la salle!",
-                    left: "a quitté la salle!",
-                    playbackStarted: "Lecture démarrée!",
-                    roomClosed: "Salle fermée par l'hôte!",
-                    copySuccess: "Code salle copié!",
-                    invalidCode: "Veuillez entrer un code salle!",
-                    invalidUrl: "Veuillez entrer une URL média!"
-                }
-            },
-            es: {
-                tagline: "¡Conecta múltiples dispositivos, escuchen juntos globalmente!",
-                createRoomTitle: "Crear Sala",
-                joinRoomTitle: "Unirse a Sala",
-                createRoomBtn: "🚀 Crear Bluetooth Connector",
-                joinRoomBtn: "🎧 Conectar Dispositivo",
-                activeRoomTitle: "Tu Sala",
-                roomCodeLabel: "Código de Sala",
-                connectedDevicesLabel: "Dispositivos Conectados",
-                deviceListTitle: "📱 Dispositivos Conectados:",
-                mediaControlsTitle: "Controlar Reproducción",
-                startPlaybackBtn: "▶️ Iniciar",
-                pausePlaybackBtn: "⏸️ Pausa",
-                volumeLabel: "🔊 Volumen:",
-                memberPlaybackTitle: "Escuchando/Viendo",
-                deviceNamePlaceholder: "Nombre del dispositivo (ej: iPhone de John)",
-                roomNamePlaceholder: "Nombre de sala (ej: Noche de Cine)",
-                joinRoomIdPlaceholder: "Ingrese Código de Sala",
-                joinDeviceNamePlaceholder: "Tu nombre",
-                mediaUrlPlaceholder: "URL del medio (YouTube, MP3, MP4, etc.)",
-                notifications: {
-                    roomCreated: "¡Sala creada! Código: ",
-                    roomJoined: "¡Te has unido a la sala!",
-                    joined: "se unió a la sala!",
-                    left: "salió de la sala!",
-                    playbackStarted: "¡Reproducción iniciada!",
-                    roomClosed: "¡Sala cerrada por el anfitrión!",
-                    copySuccess: "¡Código de sala copiado!",
-                    invalidCode: "¡Por favor ingrese un código de sala!",
-                    invalidUrl: "¡Por favor ingrese una URL de medio!"
-                }
-            },
-            zh: {
-                tagline: "连接多个设备，全球同步收听！",
-                createRoomTitle: "创建房间",
-                joinRoomTitle: "加入房间",
-                createRoomBtn: "🚀 创建蓝牙连接器",
-                joinRoomBtn: "🎧 连接设备",
-                activeRoomTitle: "你的房间",
-                roomCodeLabel: "房间代码",
-                connectedDevicesLabel: "已连接设备",
-                deviceListTitle: "📱 已连接设备：",
-                mediaControlsTitle: "控制播放",
-                startPlaybackBtn: "▶️ 开始播放",
-                pausePlaybackBtn: "⏸️ 暂停",
-                volumeLabel: "🔊 音量：",
-                memberPlaybackTitle: "收听/观看中",
-                deviceNamePlaceholder: "设备名称（例如：约翰的iPhone）",
-                roomNamePlaceholder: "房间名称（例如：电影之夜）",
-                joinRoomIdPlaceholder: "输入房间代码",
-                joinDeviceNamePlaceholder: "你的名字",
-                mediaUrlPlaceholder: "媒体URL（YouTube、MP3、MP4等）",
-                notifications: {
-                    roomCreated: "房间已创建！代码：",
-                    roomJoined: "已成功加入房间！",
-                    joined: "加入了房间！",
-                    left: "离开了房间！",
-                    playbackStarted: "播放已开始！",
-                    roomClosed: "主持人已关闭房间！",
-                    copySuccess: "房间代码已复制！",
-                    invalidCode: "请输入房间代码！",
-                    invalidUrl: "请输入媒体URL！"
-                }
-            },
-            ar: {
-                tagline: "قم بتوصيل أجهزة متعددة، استمعوا معًا عالميًا!",
-                createRoomTitle: "إنشاء غرفة",
-                joinRoomTitle: "انضم إلى غرفة",
-                createRoomBtn: "🚀 إنشاء موصل بلوتوث",
-                joinRoomBtn: "🎧 توصيل الجهاز",
-                activeRoomTitle: "غرفتك",
-                roomCodeLabel: "رمز الغرفة",
-                connectedDevicesLabel: "الأجهزة المتصلة",
-                deviceListTitle: "📱 الأجهزة المتصلة:",
-                mediaControlsTitle: "التحكم في التشغيل",
-                startPlaybackBtn: "▶️ بدء البث",
-                pausePlaybackBtn: "⏸️ إيقاف مؤقت",
-                volumeLabel: "🔊 مستوى الصوت:",
-                memberPlaybackTitle: "الاستماع/المشاهدة",
-                deviceNamePlaceholder: "اسم الجهاز (مثل: John's iPhone)",
-                roomNamePlaceholder: "اسم الغرفة (مثل: ليلة السينما)",
-                joinRoomIdPlaceholder: "أدخل رمز الغرفة",
-                joinDeviceNamePlaceholder: "اسمك",
-                mediaUrlPlaceholder: "رابط الوسائط (YouTube، MP3، MP4، إلخ)",
-                notifications: {
-                    roomCreated: "تم إنشاء الغرفة! الرمز: ",
-                    roomJoined: "انضممت إلى الغرفة بنجاح!",
-                    joined: "انضم إلى الغرفة!",
-                    left: "غادر الغرفة!",
-                    playbackStarted: "بدأ البث!",
-                    roomClosed: "تم إغلاق الغرفة من قبل المضيف!",
-                    copySuccess: "تم نسخ رمز الغرفة!",
-                    invalidCode: "الرجاء إدخال رمز الغرفة!",
-                    invalidUrl: "الرجاء إدخال رابط الوسائط!"
-                }
-            }
-        };
-
-        let currentLang = 'en';
         let socket = null;
         let currentRoom = null;
         let isCreator = false;
-        let currentMediaElement = null;
-
-        // Language Management
-        function toggleLanguageDropdown() {
-            document.querySelector('.language-selector').classList.toggle('active');
-        }
-
-        function changeLanguage(lang, flag, name) {
-            currentLang = lang;
-            document.getElementById('currentLangFlag').innerText = flag;
-            document.getElementById('currentLangName').innerText = name;
-            document.querySelector('.language-selector').classList.remove('active');
-            updateUILanguage();
-        }
-
-        function updateUILanguage() {
-            const t = translations[currentLang];
-            if (!t) return;
-            
-            document.getElementById('tagline').innerText = t.tagline;
-            document.getElementById('createRoomTitle').innerText = t.createRoomTitle;
-            document.getElementById('joinRoomTitle').innerText = t.joinRoomTitle;
-            document.getElementById('createRoomBtn').innerText = t.createRoomBtn;
-            document.getElementById('joinRoomBtn').innerText = t.joinRoomBtn;
-            document.getElementById('activeRoomTitle').innerText = t.activeRoomTitle;
-            document.getElementById('roomCodeLabel').innerHTML = t.roomCodeLabel;
-            document.getElementById('connectedDevicesLabel').innerHTML = t.connectedDevicesLabel;
-            document.getElementById('deviceListTitle').innerHTML = t.deviceListTitle;
-            document.getElementById('mediaControlsTitle').innerHTML = t.mediaControlsTitle;
-            document.getElementById('startPlaybackBtn').innerHTML = t.startPlaybackBtn;
-            document.getElementById('pausePlaybackBtn').innerHTML = t.pausePlaybackBtn;
-            document.getElementById('volumeLabel').innerHTML = t.volumeLabel;
-            document.getElementById('memberPlaybackTitle').innerHTML = t.memberPlaybackTitle;
-            
-            // Update placeholders
-            document.getElementById('deviceName').placeholder = t.deviceNamePlaceholder;
-            document.getElementById('roomName').placeholder = t.roomNamePlaceholder;
-            document.getElementById('joinRoomId').placeholder = t.joinRoomIdPlaceholder;
-            document.getElementById('joinDeviceName').placeholder = t.joinDeviceNamePlaceholder;
-            document.getElementById('mediaUrl').placeholder = t.mediaUrlPlaceholder;
-        }
-
-        // Socket and Room Logic
+        let mediaElement = null;
+        
         function initSocket() {
             socket = io();
+            
+            socket.on('connect', () => {
+                showStatus('✅ Connected to server', 'connected');
+            });
             
             socket.on('room-created', (data) => {
                 currentRoom = data.roomId;
                 isCreator = true;
-                showActiveRoom();
-                document.getElementById('displayRoomCode').innerText = data.roomId;
-                document.getElementById('maxDevices').innerText = data.maxDevices;
-                showNotification(translations[currentLang].notifications.roomCreated + data.roomId, 'success');
+                document.getElementById('createSection').style.display = 'none';
+                document.getElementById('joinSection').style.display = 'none';
+                document.getElementById('activeRoom').style.display = 'block';
+                document.getElementById('roomCode').innerText = data.roomId;
+                showStatus(`Room created! Code: ${data.roomId}`, 'connected');
             });
-
+            
             socket.on('joined-room', (data) => {
                 currentRoom = data.roomId;
                 isCreator = false;
-                showActiveRoom();
-                document.getElementById('displayRoomCode').innerText = data.roomId;
-                document.getElementById('maxDevices').innerText = data.maxDevices;
-                showNotification(translations[currentLang].notifications.roomJoined, 'success');
+                document.getElementById('createSection').style.display = 'none';
+                document.getElementById('joinSection').style.display = 'none';
+                document.getElementById('activeRoom').style.display = 'block';
+                document.getElementById('roomCode').innerText = data.roomId;
+                showStatus('Joined room successfully!', 'connected');
             });
-
+            
             socket.on('room-update', (data) => {
-                updateDeviceList(data.devices);
                 document.getElementById('deviceCount').innerText = data.deviceCount;
             });
-
+            
             socket.on('device-joined', (data) => {
-                updateDeviceList(data.devices);
                 document.getElementById('deviceCount').innerText = data.deviceCount;
-                showNotification(`${data.deviceName} ${translations[currentLang].notifications.joined}`, 'info');
+                showStatus(`${data.deviceName} joined!`, 'connected');
             });
-
-            socket.on('device-left', (data) => {
-                document.getElementById('deviceCount').innerText = data.deviceCount;
-                showNotification(`${data.deviceName} ${translations[currentLang].notifications.left}`, 'info');
-            });
-
+            
             socket.on('playback-started', (data) => {
                 if (!isCreator) {
                     loadMedia(data.media);
                 }
-                showNotification(translations[currentLang].notifications.playbackStarted, 'success');
+                showStatus('Streaming started!', 'connected');
             });
-
+            
             socket.on('sync-time', (data) => {
-                if (!isCreator && currentMediaElement) {
-                    currentMediaElement.currentTime = data.currentTime;
+                if (!isCreator && mediaElement) {
+                    mediaElement.currentTime = data.currentTime;
                 }
             });
-
+            
             socket.on('playback-paused', () => {
-                if (!isCreator && currentMediaElement) {
-                    currentMediaElement.pause();
+                if (!isCreator && mediaElement) {
+                    mediaElement.pause();
                 }
             });
-
-            socket.on('volume-adjusted', (data) => {
-                if (!isCreator && currentMediaElement) {
-                    currentMediaElement.volume = data.volume / 100;
-                }
-            });
-
+            
             socket.on('room-closed', () => {
-                showNotification(translations[currentLang].notifications.roomClosed, 'error');
+                showStatus('Room closed by host', 'error');
                 resetUI();
             });
-
+            
             socket.on('error', (data) => {
-                showNotification(data.message, 'error');
+                showStatus('Error: ' + data.message, 'error');
             });
         }
-
+        
         function createRoom() {
-            const deviceName = document.getElementById('deviceName').value || 'Anonymous Device';
+            const deviceName = document.getElementById('deviceName').value || 'My Device';
             const roomName = document.getElementById('roomName').value || 'My Room';
-            
             if (!socket) initSocket();
             socket.emit('create-room', { deviceName, roomName });
         }
-
+        
         function joinRoom() {
-            const roomId = document.getElementById('joinRoomId').value.toUpperCase();
-            const deviceName = document.getElementById('joinDeviceName').value || 'Guest Device';
-            
+            const roomId = document.getElementById('joinRoomId').value;
+            const deviceName = document.getElementById('joinDeviceName').value || 'Guest';
             if (!roomId) {
-                showNotification(translations[currentLang].notifications.invalidCode, 'error');
+                showStatus('Please enter room code!', 'error');
                 return;
             }
-            
             if (!socket) initSocket();
             socket.emit('join-room', { roomId, deviceName });
         }
-
+        
         function startPlayback() {
-            const mediaType = document.getElementById('mediaType').value;
             const mediaUrl = document.getElementById('mediaUrl').value;
-            
+            const mediaType = document.getElementById('mediaType').value;
             if (!mediaUrl) {
-                showNotification(translations[currentLang].notifications.invalidUrl, 'error');
+                showStatus('Please enter media URL!', 'error');
                 return;
             }
-            
-            socket.emit('start-playback', {
-                roomId: currentRoom,
-                mediaUrl: mediaUrl,
-                mediaType: mediaType
-            });
+            socket.emit('start-playback', { roomId: currentRoom, mediaUrl, mediaType });
         }
-
+        
         function pausePlayback() {
             socket.emit('pause-playback', { roomId: currentRoom });
         }
-
-        function adjustVolume() {
-            const volume = document.getElementById('volumeControl').value;
-            socket.emit('adjust-volume', { roomId: currentRoom, volume });
-            
-            if (isCreator && currentMediaElement) {
-                currentMediaElement.volume = volume / 100;
-            }
-        }
-
+        
         function loadMedia(media) {
-            const container = document.getElementById('memberMediaPlayer');
+            const container = document.getElementById('player');
             if (media.type === 'audio') {
-                container.innerHTML = `<audio controls id="memberAudio" src="${media.url}"></audio>`;
-                currentMediaElement = document.getElementById('memberAudio');
+                container.innerHTML = `<audio controls id="audioPlayer" src="${media.url}"></audio>`;
+                mediaElement = document.getElementById('audioPlayer');
             } else {
-                container.innerHTML = `<video controls id="memberVideo" src="${media.url}"></video>`;
-                currentMediaElement = document.getElementById('memberVideo');
+                container.innerHTML = `<video controls id="videoPlayer" src="${media.url}"></video>`;
+                mediaElement = document.getElementById('videoPlayer');
             }
+            document.getElementById('memberPlayback').style.display = 'block';
             
-            if (currentMediaElement) {
-                currentMediaElement.addEventListener('timeupdate', () => {
+            if (mediaElement) {
+                mediaElement.addEventListener('timeupdate', () => {
                     if (!isCreator) {
                         socket.emit('sync-position', {
                             roomId: currentRoom,
-                            currentTime: currentMediaElement.currentTime
+                            currentTime: mediaElement.currentTime
                         });
                     }
                 });
             }
-            
-            document.getElementById('memberPlayback').classList.add('active');
         }
-
-        function updateDeviceList(devices) {
-            const container = document.getElementById('deviceList');
-            container.innerHTML = `<h4>${translations[currentLang].deviceListTitle}</h4>`;
-            devices.forEach(device => {
-                container.innerHTML += `
-                    <div class="device-item">
-                        <div>
-                            <span class="device-badge"></span>
-                            ${device.deviceName}
-                        </div>
-                        <small>Connected</small>
-                    </div>
-                `;
-            });
+        
+        function showStatus(msg, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = msg;
+            statusDiv.style.color = type === 'error' ? '#ff6b6b' : '#4ade80';
+            setTimeout(() => {
+                if (statusDiv.innerHTML === msg) statusDiv.innerHTML = '';
+            }, 3000);
         }
-
-        function showActiveRoom() {
-            document.getElementById('createRoomCard').style.display = 'none';
-            document.getElementById('joinRoomCard').style.display = 'none';
-            document.getElementById('activeRoomCard').style.display = 'block';
-            
-            if (isCreator) {
-                document.getElementById('mediaControls').classList.add('active');
-            } else {
-                document.getElementById('memberPlayback').classList.add('active');
-            }
-        }
-
-        function copyRoomCode() {
-            const code = document.getElementById('displayRoomCode').innerText;
-            navigator.clipboard.writeText(code);
-            showNotification(translations[currentLang].notifications.copySuccess, 'success');
-        }
-
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 80px;
-                right: 20px;
-                background: ${type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : '#3b82f6'};
-                color: white;
-                padding: 12px 20px;
-                border-radius: 10px;
-                z-index: 1000;
-                animation: slideIn 0.3s ease;
-                font-weight: bold;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            `;
-            notification.innerText = message;
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 3000);
-        }
-
+        
         function resetUI() {
             currentRoom = null;
             isCreator = false;
-            document.getElementById('createRoomCard').style.display = 'block';
-            document.getElementById('joinRoomCard').style.display = 'block';
-            document.getElementById('activeRoomCard').style.display = 'none';
-            document.getElementById('mediaControls').classList.remove('active');
-            document.getElementById('memberPlayback').classList.remove('active');
+            document.getElementById('createSection').style.display = 'block';
+            document.getElementById('joinSection').style.display = 'block';
+            document.getElementById('activeRoom').style.display = 'none';
+            document.getElementById('memberPlayback').style.display = 'none';
         }
-
-        // Add click to copy room code
-        document.addEventListener('click', function(e) {
-            if (e.target.id === 'displayRoomCode') {
-                copyRoomCode();
-            }
-        });
-
-        // Add animation style
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Initialize with English
-        initSocket();
         
-        // Fetch mode
-        fetch('/api/rooms')
+        // Test API connection
+        fetch('/api/test')
             .then(res => res.json())
-            .then(data => {
-                document.getElementById('modeBadge').innerHTML = data.isFreeMode ? '🌍 Mode: Free (Up to 50 devices)' : '⭐ Mode: Premium';
-            });
+            .then(data => console.log('API test:', data))
+            .catch(err => console.error('API error:', err));
     </script>
 </body>
 </html>
