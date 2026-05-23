@@ -4,6 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Bluetooth Connector - Global Sync Audio/Video Platform</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BT Connector">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23667eea'/%3E%3Ctext x='50' y='67' font-size='50' text-anchor='middle' fill='white'%3E🎧%3C/text%3E%3C/svg%3E">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Connect multiple devices, listen together globally! Sync audio/video across all devices. Watch movies, listen to music with friends in perfect sync.">
+    <meta name="keywords" content="bluetooth, connector, audio sync, video sync, group listening, watch together, listen together, sync playback, multi-device">
+    <meta name="author" content="Bluetooth Connector">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Bluetooth Connector - Sync Audio/Video Together">
+    <meta property="og:description" content="Connect with friends, listen to music or watch movies together in sync! Create a room and share the code.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://your-app.herokuapp.com">
+    <meta property="og:image" content="https://your-app.herokuapp.com/og-image.png">
+    <meta property="og:site_name" content="Bluetooth Connector">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Bluetooth Connector - Sync Audio/Video Together">
+    <meta name="twitter:description" content="Connect with friends, listen to music or watch movies together in sync!">
+    <meta name="twitter:image" content="https://your-app.herokuapp.com/twitter-image.png">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YOUR-ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-YOUR-ID');
+    </script>
+    
     <style>
         * {
             margin: 0;
@@ -298,30 +336,66 @@
             width: 100%;
             cursor: pointer;
         }
+
+        /* PWA Install Prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            display: none;
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+        }
+
+        .install-prompt.show {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .install-prompt button {
+            width: auto;
+            padding: 8px 20px;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
+    <!-- PWA Install Prompt -->
+    <div class="install-prompt" id="installPrompt">
+        <span>📱 Install Bluetooth Connector app for better experience!</span>
+        <button onclick="installPWA()">Install App</button>
+        <button onclick="closeInstallPrompt()" style="background: rgba(255,255,255,0.2);">Close</button>
+    </div>
+
     <!-- Language Selector -->
     <div class="language-selector" onclick="toggleLanguageDropdown()">
         <span class="lang-flag" id="currentLangFlag">🌍</span>
         <span id="currentLangName">English</span>
         <div class="lang-dropdown">
-            <div class="lang-option" onclick="changeLanguage('en', '🇺🇸', 'English')">
+            <div class="lang-option" onclick="event.stopPropagation(); changeLanguage('en', '🇺🇸', 'English')">
                 <span>🇺🇸</span> English
             </div>
-            <div class="lang-option" onclick="changeLanguage('sw', '🇹🇿', 'Kiswahili')">
+            <div class="lang-option" onclick="event.stopPropagation(); changeLanguage('sw', '🇹🇿', 'Kiswahili')">
                 <span>🇹🇿</span> Kiswahili
             </div>
-            <div class="lang-option" onclick="changeLanguage('fr', '🇫🇷', 'Français')">
+            <div class="lang-option" onclick="event.stopPropagation(); changeLanguage('fr', '🇫🇷', 'Français')">
                 <span>🇫🇷</span> Français
             </div>
-            <div class="lang-option" onclick="changeLanguage('es', '🇪🇸', 'Español')">
+            <div class="lang-option" onclick="event.stopPropagation(); changeLanguage('es', '🇪🇸', 'Español')">
                 <span>🇪🇸</span> Español
             </div>
-            <div class="lang-option" onclick="changeLanguage('zh', '🇨🇳', '中文')">
+            <div class="lang-option" onclick="event.stopPropagation(); changeLanguage('zh', '🇨🇳', '中文')">
                 <span>🇨🇳</span> 中文
             </div>
-            <div class="lang-option" onclick="changeLanguage('ar', '🇸🇦', 'العربية')">
+            <div class="lang-option" onclick="event.stopPropagation(); changeLanguage('ar', '🇸🇦', 'العربية')">
                 <span>🇸🇦</span> العربية
             </div>
         </div>
@@ -390,6 +464,32 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        // PWA Installation
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').classList.add('show');
+        });
+        
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installPrompt').classList.remove('show');
+                });
+            }
+        }
+        
+        function closeInstallPrompt() {
+            document.getElementById('installPrompt').classList.remove('show');
+        }
+        
         // Multi-language translations
         const translations = {
             en: {
@@ -603,6 +703,11 @@
             document.getElementById('currentLangName').innerText = name;
             document.querySelector('.language-selector').classList.remove('active');
             updateUILanguage();
+            
+            // Track language change in analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'language_change', { 'language': lang });
+            }
         }
 
         function updateUILanguage() {
@@ -624,7 +729,6 @@
             document.getElementById('volumeLabel').innerHTML = t.volumeLabel;
             document.getElementById('memberPlaybackTitle').innerHTML = t.memberPlaybackTitle;
             
-            // Update placeholders
             document.getElementById('deviceName').placeholder = t.deviceNamePlaceholder;
             document.getElementById('roomName').placeholder = t.roomNamePlaceholder;
             document.getElementById('joinRoomId').placeholder = t.joinRoomIdPlaceholder;
@@ -643,6 +747,11 @@
                 document.getElementById('displayRoomCode').innerText = data.roomId;
                 document.getElementById('maxDevices').innerText = data.maxDevices;
                 showNotification(translations[currentLang].notifications.roomCreated + data.roomId, 'success');
+                
+                // Track room creation
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'room_created', { 'room_id': data.roomId });
+                }
             });
 
             socket.on('joined-room', (data) => {
@@ -866,7 +975,7 @@
         `;
         document.head.appendChild(style);
 
-        // Initialize with English
+        // Initialize
         initSocket();
         
         // Fetch mode
@@ -875,6 +984,15 @@
             .then(data => {
                 document.getElementById('modeBadge').innerHTML = data.isFreeMode ? '🌍 Mode: Free (Up to 50 devices)' : '⭐ Mode: Premium';
             });
+            
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(reg => {
+                console.log('Service Worker registered:', reg);
+            }).catch(err => {
+                console.log('Service Worker registration failed:', err);
+            });
+        }
     </script>
 </body>
 </html>
