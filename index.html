@@ -58,15 +58,6 @@
     <meta name="twitter:site" content="@bluetoothconnector">
     <meta name="twitter:creator" content="@yourhandle">
     
-    <!-- Google Analytics (Optional - Remove if not needed) -->
-    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-YOUR-ID"></script> -->
-    <!-- <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-YOUR-ID');
-    </script> -->
-    
     <!-- Canonical URL -->
     <link rel="canonical" href="https://bluetooth.zass.website/">
     
@@ -463,9 +454,43 @@
             background: rgba(255,255,255,0.2);
             margin-top: 15px;
         }
+
+        /* PWA Install Banner - Visible always for first time */
+        .pwa-banner {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+            right: 20px;
+            background: #667eea;
+            border-radius: 15px;
+            padding: 15px;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease;
+        }
+
+        .pwa-banner.show {
+            display: block;
+        }
+
+        .pwa-banner button {
+            width: auto;
+            margin: 5px;
+            padding: 8px 16px;
+        }
     </style>
 </head>
 <body>
+    <!-- PWA Installation Banner -->
+    <div class="pwa-banner" id="pwaBanner">
+        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+            <span>📱 <strong>Install App</strong> for better experience!</span>
+            <button onclick="installPWA()" style="width: auto; background: white; color: #667eea;">Install Now</button>
+            <button onclick="document.getElementById('pwaBanner').classList.remove('show')" style="width: auto; background: rgba(255,255,255,0.2);">Later</button>
+        </div>
+    </div>
+
     <!-- Offline Indicator -->
     <div class="offline-indicator" id="offlineIndicator">
         📡 You are offline. Some features may be limited.
@@ -580,14 +605,16 @@
                         // Check for updates
                         registration.onupdatefound = function() {
                             const installingWorker = registration.installing;
-                            installingWorker.onstatechange = function() {
-                                if (installingWorker.state === 'installed') {
-                                    if (navigator.serviceWorker.controller) {
-                                        console.log('🔄 New content available, refresh to update');
-                                        showUpdateNotification();
+                            if (installingWorker) {
+                                installingWorker.onstatechange = function() {
+                                    if (installingWorker.state === 'installed') {
+                                        if (navigator.serviceWorker.controller) {
+                                            console.log('🔄 New content available, refresh to update');
+                                            showUpdateNotification();
+                                        }
                                     }
-                                }
-                            };
+                                };
+                            }
                         };
                     })
                     .catch(function(error) {
@@ -629,6 +656,7 @@
             deferredPrompt = e;
             document.getElementById('installPrompt').classList.add('show');
             document.getElementById('downloadBtn').classList.add('show');
+            document.getElementById('pwaBanner').classList.add('show');
         });
         
         function installPWA() {
@@ -636,12 +664,25 @@
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the install prompt');
+                        console.log('✅ User accepted the install prompt');
+                        localStorage.setItem('pwaInstalled', 'true');
                     }
                     deferredPrompt = null;
                     document.getElementById('installPrompt').classList.remove('show');
+                    document.getElementById('pwaBanner').classList.remove('show');
                 });
+            } else {
+                // Fallback - show guide
+                showInstallGuide();
             }
+        }
+        
+        // Check if already installed (from localStorage or user agent)
+        if (window.matchMedia('(display-mode: standalone)').matches || 
+            window.navigator.standalone === true ||
+            localStorage.getItem('pwaInstalled') === 'true') {
+            console.log('App is already installed');
+            document.getElementById('downloadBtn').style.display = 'none';
         }
         
         function manualInstall() {
@@ -661,14 +702,14 @@
             
             if (isIOS) {
                 stepsList.innerHTML = `
-                    <li>1. Tap the <strong>Share button</strong> (square with arrow)</li>
+                    <li>1. Tap the <strong>Share button</strong> (square with arrow at bottom)</li>
                     <li>2. Scroll down and tap <strong>"Add to Home Screen"</strong></li>
-                    <li>3. Tap <strong>"Add"</strong> in the top right</li>
+                    <li>3. Tap <strong>"Add"</strong> in the top right corner</li>
                     <li>4. The app will appear on your home screen! 🎉</li>
                 `;
             } else if (isAndroid) {
                 stepsList.innerHTML = `
-                    <li>1. Tap the <strong>Chrome menu</strong> (three dots ⋮)</li>
+                    <li>1. Tap the <strong>Chrome menu</strong> (three dots ⋮ at top right)</li>
                     <li>2. Tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></li>
                     <li>3. Tap <strong>"Install"</strong></li>
                     <li>4. The app will appear on your home screen! 🎉</li>
@@ -1059,6 +1100,19 @@
         fetch('/api/rooms').then(res => res.json()).then(data => {
             document.getElementById('modeBadge').innerHTML = data.isFreeMode ? '🌍 Mode: Free (Up to 50 devices)' : '⭐ Mode: Premium';
         });
+        
+        // Cache API for offline support
+        if ('caches' in window) {
+            caches.open('bt-connector-v1').then(cache => {
+                cache.addAll([
+                    '/',
+                    '/index.html',
+                    '/manifest.json',
+                    '/zas.png',
+                    '/socket.io/socket.io.js'
+                ]);
+            });
+        }
     </script>
 </body>
 </html>
