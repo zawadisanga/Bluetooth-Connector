@@ -31,3 +31,43 @@
   "author": "Your Name",
   "license": "MIT"
 }
+
+
+{
+  "name": "bluetooth-connector-desktop",
+  "version": "1.0.0",
+  "description": "Bluetooth Connector Desktop App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.zass.bluetoothconnector",
+    "productName": "Bluetooth Connector",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "icon.ico"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "icon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "icon.icns"
+    }
+  }
+}
