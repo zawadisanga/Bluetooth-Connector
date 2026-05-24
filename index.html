@@ -3,6 +3,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Bluetooth Connector - Global Sync Audio/Video Platform</title>
     
+    <!-- Google Search Console Verification -->
+    <meta name="google-site-verification" content="CODE_YAKO">
+    
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#667eea">
@@ -15,13 +18,508 @@
     <link rel="apple-touch-icon" sizes="72x72" href="/zas.png">
     <link rel="apple-touch-icon" sizes="76x76" href="/zas.png">
     <link rel="apple-touch-icon" sizes="114x114" href="/zas.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/zas.png">
+   <link rel="apple-touch-icon" sizes="120x120" href="/zas.png">
     <link rel="apple-touch-icon" sizes="144x144" href="/zas.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/zas.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/zas.png">
     
     <!-- Regular favicon -->
     <link rel="icon" type="image/png" href="/zas.png">
+    <link rel="shortcut icon" href="/zas.png" type="image/png">
     
-    <!-- Rest of head... -->
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Connect multiple devices, listen together globally! Sync audio/video across all devices. Watch movies, listen to music with friends in perfect sync.">
+    <meta name="keywords" content="bluetooth, connector, audio sync, video sync, group listening, watch together, listen together, sync playback, multi-device, shared audio, social listening">
+    <meta name="author" content="Bluetooth Connector">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <meta name="revisit-after" content="7 days">
+    <meta name="language" content="English">
+    
+    <!-- Open Graph / Social Media (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:title" content="Bluetooth Connector - Sync Audio/Video Together Globally">
+    <meta property="og:description" content="Connect with friends, listen to music or watch movies together in sync! Create a room and share the code. No downloads needed.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bluetooth.zass.website">
+    <meta property="og:image" content="https://bluetooth.zass.website/zas.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta property="og:image:alt" content="Bluetooth Connector Logo">
+    <meta property="og:site_name" content="Bluetooth Connector">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter Card (Twitter/X) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Bluetooth Connector - Sync Audio/Video Together">
+    <meta name="twitter:description" content="Connect with friends, listen to music or watch movies together in sync! Create a room and share the code.">
+    <meta name="twitter:image" content="https://bluetooth.zass.website/zas.png">
+    <meta name="twitter:image:alt" content="Bluetooth Connector Logo">
+    <meta name="twitter:site" content="@bluetoothconnector">
+    <meta name="twitter:creator" content="@yourhandle">
+    
+    <!-- Google Analytics (Replace G-YOUR-ID with your actual GA4 ID) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YOUR-ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-YOUR-ID', {
+            'send_page_view': true,
+            'anonymize_ip': true
+        });
+    </script>
+    
+    <!-- Microsoft Clarity Analytics (Optional - for heatmaps) -->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "YOUR-CLARITY-ID");
+    </script>
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://bluetooth.zass.website/">
+    
+    <!-- Preconnect for external resources -->
+    <link rel="preconnect" href="https://cdn.socket.io">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="//cdn.socket.io">
+    <link rel="dns-prefetch" href="//www.google-analytics.com">
+    
+    <!-- Rest of your CSS styles -->
+    <style>
+        /* Your existing styles remain exactly the same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Language Selector */
+        .language-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            border-radius: 50px;
+            display: flex;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .language-selector:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .lang-flag {
+            font-size: 1.5em;
+        }
+
+        .lang-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 10px;
+            display: none;
+            min-width: 150px;
+        }
+
+        .language-selector.active .lang-dropdown {
+            display: block;
+        }
+
+        .lang-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lang-option:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        /* Download Button */
+        .download-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .download-btn.show {
+            display: flex;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Form Elements */
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+        }
+
+        input {
+            background: rgba(255,255,255,0.9);
+            color: #333;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .room-info {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .device-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .device-item {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .device-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        /* Media Player */
+        .media-player {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .media-player.active {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+
+        audio, video {
+            width: 100%;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .language-selector {
+                top: 10px;
+                right: 10px;
+            }
+            
+            .download-btn {
+                bottom: 10px;
+                left: 10px;
+                padding: 10px 18px;
+                font-size: 0.9em;
+            }
+        }
+
+        .room-code {
+            font-size: 2em;
+            font-weight: bold;
+            letter-spacing: 5px;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .room-code:hover {
+            background: rgba(0,0,0,0.5);
+            transform: scale(1.02);
+        }
+
+        .volume-slider {
+            margin-top: 15px;
+        }
+
+        .volume-slider input {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        /* PWA Install Prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            left: auto;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px 20px;
+            display: none;
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+            max-width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .install-prompt.show {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .install-prompt span {
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .install-prompt-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .install-prompt button {
+            width: auto;
+            padding: 8px 20px;
+            margin: 0;
+        }
+
+        /* Offline Indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #ef4444;
+            color: white;
+            text-align: center;
+            padding: 5px;
+            font-size: 12px;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+
+        .offline-indicator.show {
+            transform: translateY(0);
+        }
+
+        /* Installation Guide Modal */
+        .install-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .install-modal.show {
+            display: flex;
+        }
+
+        .install-modal-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+
+        .install-modal-content h3 {
+            margin-bottom: 15px;
+        }
+
+        .install-modal-content p {
+            margin: 10px 0;
+            opacity: 0.9;
+        }
+
+        .install-steps {
+            text-align: left;
+            margin: 20px 0;
+            padding-left: 20px;
+        }
+
+        .install-steps li {
+            margin: 10px 0;
+        }
+
+        .close-modal {
+            background: rgba(255,255,255,0.2);
+            margin-top: 15px;
+        }
+    </style>
 </head>
