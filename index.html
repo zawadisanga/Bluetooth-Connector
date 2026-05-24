@@ -15,8 +15,20 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BT Connector">
     
-    <!-- Apple Touch Icons using your logo -->
+    <!-- ========================================== -->
+    <!-- FAVICON FOR BROWSER TAB (Next to star)     -->
+    <!-- ========================================== -->
+    <!-- Standard favicon for most browsers -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/zas.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/zas.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="/zas.png">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="/zas.png" type="image/png">
+    
+    <!-- Apple Touch Icons for iOS/macOS (Home screen) -->
     <link rel="apple-touch-icon" href="/zas.png">
+    <link rel="apple-touch-icon" sizes="57x57" href="/zas.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/zas.png">
     <link rel="apple-touch-icon" sizes="72x72" href="/zas.png">
     <link rel="apple-touch-icon" sizes="76x76" href="/zas.png">
     <link rel="apple-touch-icon" sizes="114x114" href="/zas.png">
@@ -25,9 +37,20 @@
     <link rel="apple-touch-icon" sizes="152x152" href="/zas.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/zas.png">
     
-    <!-- Regular favicon -->
-    <link rel="icon" type="image/png" href="/zas.png">
-    <link rel="shortcut icon" href="/zas.png" type="image/png">
+    <!-- Windows / Microsoft Tile Icons -->
+    <meta name="msapplication-TileImage" content="/zas.png">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="msapplication-square70x70logo" content="/zas.png">
+    <meta name="msapplication-square150x150logo" content="/zas.png">
+    <meta name="msapplication-wide310x150logo" content="/zas.png">
+    <meta name="msapplication-square310x310logo" content="/zas.png">
+    <meta name="msapplication-config" content="none">
+    
+    <!-- Safari Pinned Tab Icon (macOS) -->
+    <link rel="mask-icon" href="/zas.png" color="#667eea">
+    
+    <!-- Yandex Browser -->
+    <meta name="yandex-tableau-widget" content="/zas.png">
     
     <!-- SEO Meta Tags -->
     <meta name="description" content="Connect multiple devices, listen together globally! Sync audio/video across all devices. Watch movies, listen to music with friends in perfect sync.">
@@ -455,7 +478,6 @@
             margin-top: 15px;
         }
 
-        /* PWA Install Banner - Visible always for first time */
         .pwa-banner {
             display: none;
             position: fixed;
