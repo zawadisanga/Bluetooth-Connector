@@ -202,6 +202,36 @@
             margin-top: 10px;
         }
 
+        /* Download Button */
+        .download-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .download-btn.show {
+            display: flex;
+        }
+
         /* Main Content */
         .main-content {
             display: grid;
@@ -364,6 +394,13 @@
                 top: 10px;
                 right: 10px;
             }
+            
+            .download-btn {
+                bottom: 10px;
+                left: 10px;
+                padding: 10px 18px;
+                font-size: 0.9em;
+            }
         }
 
         .share-section {
@@ -401,23 +438,34 @@
         .install-prompt {
             position: fixed;
             bottom: 20px;
-            left: 20px;
             right: 20px;
-            background: rgba(0,0,0,0.9);
+            left: auto;
+            background: rgba(0,0,0,0.95);
             backdrop-filter: blur(10px);
             border-radius: 15px;
-            padding: 15px;
+            padding: 15px 20px;
             display: none;
             z-index: 1000;
             animation: slideUp 0.3s ease;
+            max-width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
         .install-prompt.show {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .install-prompt span {
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .install-prompt-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
         }
 
         .install-prompt button {
@@ -445,6 +493,60 @@
         .offline-indicator.show {
             transform: translateY(0);
         }
+
+        /* Installation Guide Modal */
+        .install-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .install-modal.show {
+            display: flex;
+        }
+
+        .install-modal-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+
+        .install-modal-content h3 {
+            margin-bottom: 15px;
+        }
+
+        .install-modal-content p {
+            margin: 10px 0;
+            opacity: 0.9;
+        }
+
+        .install-steps {
+            text-align: left;
+            margin: 20px 0;
+            padding-left: 20px;
+        }
+
+        .install-steps li {
+            margin: 10px 0;
+        }
+
+        .close-modal {
+            background: rgba(255,255,255,0.2);
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -453,11 +555,31 @@
         📡 You are offline. Some features may be limited.
     </div>
 
+    <!-- Download Button (Fixed Position) -->
+    <button class="download-btn" id="downloadBtn" onclick="manualInstall()">
+        📲 Download App
+    </button>
+
     <!-- PWA Install Prompt -->
     <div class="install-prompt" id="installPrompt">
-        <span>📱 Install Bluetooth Connector app for better experience!</span>
-        <button onclick="installPWA()">Install App</button>
-        <button onclick="closeInstallPrompt()" style="background: rgba(255,255,255,0.2);">Close</button>
+        <span>📱 Install Bluetooth Connector as app for better experience!</span>
+        <div class="install-prompt-buttons">
+            <button onclick="installPWA()">Install</button>
+            <button onclick="showInstallGuide()" style="background: rgba(255,255,255,0.2);">Guide</button>
+            <button onclick="closeInstallPrompt()" style="background: rgba(255,255,255,0.15);">Close</button>
+        </div>
+    </div>
+
+    <!-- Installation Guide Modal -->
+    <div class="install-modal" id="installModal">
+        <div class="install-modal-content">
+            <h3>📱 How to Install App</h3>
+            <p>Follow these steps based on your device:</p>
+            <ul class="install-steps" id="installSteps">
+                <!-- Steps will be filled by JavaScript -->
+            </ul>
+            <button class="close-modal" onclick="closeInstallModal()">Got it</button>
+        </div>
     </div>
 
     <!-- Language Selector -->
@@ -556,6 +678,7 @@
             e.preventDefault();
             deferredPrompt = e;
             document.getElementById('installPrompt').classList.add('show');
+            document.getElementById('downloadBtn').classList.add('show');
         });
         
         function installPWA() {
@@ -564,7 +687,6 @@
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                         console.log('User accepted the install prompt');
-                        // Track installation
                         if (typeof gtag !== 'undefined') {
                             gtag('event', 'pwa_installed');
                         }
@@ -573,6 +695,51 @@
                     document.getElementById('installPrompt').classList.remove('show');
                 });
             }
+        }
+        
+        function manualInstall() {
+            if (deferredPrompt) {
+                installPWA();
+            } else {
+                showInstallGuide();
+            }
+        }
+        
+        function showInstallGuide() {
+            const modal = document.getElementById('installModal');
+            const stepsList = document.getElementById('installSteps');
+            
+            // Detect device
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isAndroid = /Android/.test(navigator.userAgent);
+            
+            if (isIOS) {
+                stepsList.innerHTML = `
+                    <li>1. Tap the <strong>Share button</strong> (square with arrow)</li>
+                    <li>2. Scroll down and tap <strong>"Add to Home Screen"</strong></li>
+                    <li>3. Tap <strong>"Add"</strong> in the top right</li>
+                    <li>4. The app will appear on your home screen! 🎉</li>
+                `;
+            } else if (isAndroid) {
+                stepsList.innerHTML = `
+                    <li>1. Tap the <strong>Chrome menu</strong> (three dots ⋮)</li>
+                    <li>2. Tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></li>
+                    <li>3. Tap <strong>"Install"</strong></li>
+                    <li>4. The app will appear on your home screen! 🎉</li>
+                `;
+            } else {
+                stepsList.innerHTML = `
+                    <li>1. Look for the <strong>install icon</strong> (📱 or ⬇️) in the address bar</li>
+                    <li>2. Click the icon and select <strong>"Install"</strong></li>
+                    <li>3. The app will be installed on your computer! 🎉</li>
+                `;
+            }
+            
+            modal.classList.add('show');
+        }
+        
+        function closeInstallModal() {
+            document.getElementById('installModal').classList.remove('show');
         }
         
         function closeInstallPrompt() {
@@ -1088,27 +1255,25 @@
                 navigator.serviceWorker.register('/sw.js').then(reg => {
                     console.log('Service Worker registered successfully:', reg);
                     
-                    // Check for updates
                     reg.onupdatefound = () => {
                         const installingWorker = reg.installing;
                         installingWorker.onstatechange = () => {
                             if (installingWorker.state === 'installed') {
                                 if (navigator.serviceWorker.controller) {
                                     console.log('New content available, refresh to update');
-                                    // Show update notification
                                     const updateNotification = document.createElement('div');
                                     updateNotification.style.cssText = `
                                         position: fixed;
                                         bottom: 20px;
-                                        left: 20px;
                                         right: 20px;
                                         background: #667eea;
                                         color: white;
-                                        padding: 12px;
+                                        padding: 12px 20px;
                                         border-radius: 10px;
                                         text-align: center;
                                         z-index: 1000;
                                         cursor: pointer;
+                                        font-size: 14px;
                                     `;
                                     updateNotification.innerHTML = '🔄 New update available! Click to refresh.';
                                     updateNotification.onclick = () => window.location.reload();
