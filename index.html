@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -18,7 +20,7 @@
     <link rel="apple-touch-icon" sizes="72x72" href="/zas.png">
     <link rel="apple-touch-icon" sizes="76x76" href="/zas.png">
     <link rel="apple-touch-icon" sizes="114x114" href="/zas.png">
-   <link rel="apple-touch-icon" sizes="120x120" href="/zas.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/zas.png">
     <link rel="apple-touch-icon" sizes="144x144" href="/zas.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/zas.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/zas.png">
@@ -35,7 +37,7 @@
     <meta name="revisit-after" content="7 days">
     <meta name="language" content="English">
     
-    <!-- Open Graph / Social Media (Facebook, WhatsApp, LinkedIn) -->
+    <!-- Open Graph / Social Media -->
     <meta property="og:title" content="Bluetooth Connector - Sync Audio/Video Together Globally">
     <meta property="og:description" content="Connect with friends, listen to music or watch movies together in sync! Create a room and share the code. No downloads needed.">
     <meta property="og:type" content="website">
@@ -47,7 +49,7 @@
     <meta property="og:site_name" content="Bluetooth Connector">
     <meta property="og:locale" content="en_US">
     
-    <!-- Twitter Card (Twitter/X) -->
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Bluetooth Connector - Sync Audio/Video Together">
     <meta name="twitter:description" content="Connect with friends, listen to music or watch movies together in sync! Create a room and share the code.">
@@ -56,41 +58,25 @@
     <meta name="twitter:site" content="@bluetoothconnector">
     <meta name="twitter:creator" content="@yourhandle">
     
-    <!-- Google Analytics (Replace G-YOUR-ID with your actual GA4 ID) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YOUR-ID"></script>
-    <script>
+    <!-- Google Analytics (Optional - Remove if not needed) -->
+    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-YOUR-ID"></script> -->
+    <!-- <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', 'G-YOUR-ID', {
-            'send_page_view': true,
-            'anonymize_ip': true
-        });
-    </script>
-    
-    <!-- Microsoft Clarity Analytics (Optional - for heatmaps) -->
-    <script type="text/javascript">
-        (function(c,l,a,r,i,t,y){
-            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-        })(window, document, "clarity", "script", "YOUR-CLARITY-ID");
-    </script>
+        gtag('config', 'G-YOUR-ID');
+    </script> -->
     
     <!-- Canonical URL -->
     <link rel="canonical" href="https://bluetooth.zass.website/">
     
     <!-- Preconnect for external resources -->
     <link rel="preconnect" href="https://cdn.socket.io">
-    <link rel="preconnect" href="https://www.googletagmanager.com">
     
     <!-- DNS Prefetch -->
     <link rel="dns-prefetch" href="//cdn.socket.io">
-    <link rel="dns-prefetch" href="//www.google-analytics.com">
     
-    <!-- Rest of your CSS styles -->
     <style>
-        /* Your existing styles remain exactly the same */
         * {
             margin: 0;
             padding: 0;
@@ -102,7 +88,6 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #fff;
-            transition: all 0.3s ease;
         }
 
         .container {
@@ -166,7 +151,6 @@
             background: rgba(255,255,255,0.2);
         }
 
-        /* Header */
         .header {
             text-align: center;
             padding: 30px 0;
@@ -190,7 +174,6 @@
             margin-top: 10px;
         }
 
-        /* Download Button */
         .download-btn {
             position: fixed;
             bottom: 20px;
@@ -213,14 +196,12 @@
 
         .download-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
         }
 
         .download-btn.show {
             display: flex;
         }
 
-        /* Main Content */
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -228,7 +209,6 @@
             margin-top: 30px;
         }
 
-        /* Cards */
         .card {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
@@ -250,7 +230,6 @@
             gap: 10px;
         }
 
-        /* Form Elements */
         input, select, button {
             width: 100%;
             padding: 12px;
@@ -310,7 +289,6 @@
             animation: pulse 2s infinite;
         }
 
-        /* Media Player */
         .media-player {
             margin-top: 20px;
             display: none;
@@ -327,59 +305,26 @@
             margin: 10px 0;
         }
 
-        /* Animations */
         @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            .language-selector {
-                top: 10px;
-                right: 10px;
-            }
-            
-            .download-btn {
-                bottom: 10px;
-                left: 10px;
-                padding: 10px 18px;
-                font-size: 0.9em;
-            }
+            .main-content { grid-template-columns: 1fr; }
+            .header h1 { font-size: 2em; }
+            .language-selector { top: 10px; right: 10px; }
+            .download-btn { bottom: 10px; left: 10px; padding: 10px 18px; font-size: 0.9em; }
         }
 
         .room-code {
@@ -408,7 +353,6 @@
             cursor: pointer;
         }
 
-        /* PWA Install Prompt */
         .install-prompt {
             position: fixed;
             bottom: 20px;
@@ -448,7 +392,6 @@
             margin: 0;
         }
 
-        /* Offline Indicator */
         .offline-indicator {
             position: fixed;
             top: 0;
@@ -468,7 +411,6 @@
             transform: translateY(0);
         }
 
-        /* Installation Guide Modal */
         .install-modal {
             position: fixed;
             top: 0;
@@ -523,3 +465,600 @@
         }
     </style>
 </head>
+<body>
+    <!-- Offline Indicator -->
+    <div class="offline-indicator" id="offlineIndicator">
+        📡 You are offline. Some features may be limited.
+    </div>
+
+    <!-- Download Button -->
+    <button class="download-btn" id="downloadBtn" onclick="manualInstall()">
+        📲 Download App
+    </button>
+
+    <!-- PWA Install Prompt -->
+    <div class="install-prompt" id="installPrompt">
+        <span>📱 Install Bluetooth Connector as app for better experience!</span>
+        <div class="install-prompt-buttons">
+            <button onclick="installPWA()">Install</button>
+            <button onclick="showInstallGuide()" style="background: rgba(255,255,255,0.2);">Guide</button>
+            <button onclick="closeInstallPrompt()" style="background: rgba(255,255,255,0.15);">Close</button>
+        </div>
+    </div>
+
+    <!-- Installation Guide Modal -->
+    <div class="install-modal" id="installModal">
+        <div class="install-modal-content">
+            <h3>📱 How to Install App</h3>
+            <p>Follow these steps based on your device:</p>
+            <ul class="install-steps" id="installSteps"></ul>
+            <button class="close-modal" onclick="closeInstallModal()">Got it</button>
+        </div>
+    </div>
+
+    <!-- Language Selector -->
+    <div class="language-selector" onclick="toggleLanguageDropdown()">
+        <span class="lang-flag" id="currentLangFlag">🌍</span>
+        <span id="currentLangName">English</span>
+        <div class="lang-dropdown">
+            <div class="lang-option" onclick="event.stopPropagation(); changeLanguage('en', '🇺🇸', 'English')">🇺🇸 English</div>
+            <div class="lang-option" onclick="event.stopPropagation(); changeLanguage('sw', '🇹🇿', 'Kiswahili')">🇹🇿 Kiswahili</div>
+            <div class="lang-option" onclick="event.stopPropagation(); changeLanguage('fr', '🇫🇷', 'Français')">🇫🇷 Français</div>
+            <div class="lang-option" onclick="event.stopPropagation(); changeLanguage('es', '🇪🇸', 'Español')">🇪🇸 Español</div>
+            <div class="lang-option" onclick="event.stopPropagation(); changeLanguage('zh', '🇨🇳', '中文')">🇨🇳 中文</div>
+            <div class="lang-option" onclick="event.stopPropagation(); changeLanguage('ar', '🇸🇦', 'العربية')">🇸🇦 العربية</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎧 Bluetooth Connector</h1>
+            <p id="tagline">Connect multiple devices, listen together globally!</p>
+            <div class="badge" id="modeBadge">Mode: Free (Up to 50 devices)</div>
+        </div>
+
+        <div class="main-content">
+            <div class="card" id="createRoomCard">
+                <h2>📱 <span id="createRoomTitle">Create Room</span></h2>
+                <input type="text" id="deviceName" placeholder="Your device name (e.g., John's iPhone)">
+                <input type="text" id="roomName" placeholder="Room name (e.g., Movie Night)">
+                <button onclick="createRoom()" id="createRoomBtn">🚀 Create Bluetooth Connector</button>
+            </div>
+
+            <div class="card" id="joinRoomCard">
+                <h2>🔗 <span id="joinRoomTitle">Join Room</span></h2>
+                <input type="text" id="joinRoomId" placeholder="Enter Room Code">
+                <input type="text" id="joinDeviceName" placeholder="Your name">
+                <button onclick="joinRoom()" id="joinRoomBtn">🎧 Connect Device</button>
+            </div>
+        </div>
+
+        <div class="card" id="activeRoomCard" style="display:none;">
+            <h2>🎯 <span id="activeRoomTitle">Your Room</span></h2>
+            <div class="room-info">
+                <div><span id="roomCodeLabel">Room Code</span>: <strong id="displayRoomCode"></strong> <span style="font-size:0.8em;">(click to copy)</span></div>
+                <div><span id="connectedDevicesLabel">Connected Devices</span>: <strong id="deviceCount">0</strong> / <span id="maxDevices"></span></div>
+            </div>
+            
+            <div class="device-list" id="deviceList">
+                <h4 id="deviceListTitle">📱 Connected Devices:</h4>
+            </div>
+
+            <div class="media-player" id="mediaControls">
+                <h3>🎬 <span id="mediaControlsTitle">Control Playback</span></h3>
+                <select id="mediaType">
+                    <option value="audio">🎵 Audio (Music/Podcast)</option>
+                    <option value="video">🎥 Video (Movie/Clip)</option>
+                </select>
+                <input type="text" id="mediaUrl" placeholder="Media URL (YouTube, MP3, MP4, etc.)">
+                <button onclick="startPlayback()" id="startPlaybackBtn">▶️ Start Streaming</button>
+                <button onclick="pausePlayback()" id="pausePlaybackBtn">⏸️ Pause</button>
+                <div class="volume-slider">
+                    <label id="volumeLabel">🔊 Volume:</label>
+                    <input type="range" id="volumeControl" min="0" max="100" value="70" onchange="adjustVolume()">
+                </div>
+            </div>
+
+            <div class="media-player" id="memberPlayback">
+                <h3>🎧 <span id="memberPlaybackTitle">Listening/Watching</span></h3>
+                <div id="memberMediaPlayer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // ============================================
+        // SERVICE WORKER REGISTRATION (PWA)
+        // ============================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('✅ Service Worker registered successfully:', registration);
+                        
+                        // Check for updates
+                        registration.onupdatefound = function() {
+                            const installingWorker = registration.installing;
+                            installingWorker.onstatechange = function() {
+                                if (installingWorker.state === 'installed') {
+                                    if (navigator.serviceWorker.controller) {
+                                        console.log('🔄 New content available, refresh to update');
+                                        showUpdateNotification();
+                                    }
+                                }
+                            };
+                        };
+                    })
+                    .catch(function(error) {
+                        console.log('❌ Service Worker registration failed:', error);
+                    });
+            });
+        } else {
+            console.log('⚠️ Service Worker not supported');
+        }
+        
+        function showUpdateNotification() {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: #667eea;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 10px;
+                z-index: 1000;
+                cursor: pointer;
+                font-size: 14px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            `;
+            notification.innerHTML = '🔄 New update available! Click to refresh.';
+            notification.onclick = () => window.location.reload();
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 10000);
+        }
+        
+        // ============================================
+        // PWA INSTALLATION
+        // ============================================
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').classList.add('show');
+            document.getElementById('downloadBtn').classList.add('show');
+        });
+        
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installPrompt').classList.remove('show');
+                });
+            }
+        }
+        
+        function manualInstall() {
+            if (deferredPrompt) {
+                installPWA();
+            } else {
+                showInstallGuide();
+            }
+        }
+        
+        function showInstallGuide() {
+            const modal = document.getElementById('installModal');
+            const stepsList = document.getElementById('installSteps');
+            
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isAndroid = /Android/.test(navigator.userAgent);
+            
+            if (isIOS) {
+                stepsList.innerHTML = `
+                    <li>1. Tap the <strong>Share button</strong> (square with arrow)</li>
+                    <li>2. Scroll down and tap <strong>"Add to Home Screen"</strong></li>
+                    <li>3. Tap <strong>"Add"</strong> in the top right</li>
+                    <li>4. The app will appear on your home screen! 🎉</li>
+                `;
+            } else if (isAndroid) {
+                stepsList.innerHTML = `
+                    <li>1. Tap the <strong>Chrome menu</strong> (three dots ⋮)</li>
+                    <li>2. Tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></li>
+                    <li>3. Tap <strong>"Install"</strong></li>
+                    <li>4. The app will appear on your home screen! 🎉</li>
+                `;
+            } else {
+                stepsList.innerHTML = `
+                    <li>1. Look for the <strong>install icon</strong> (📱 or ⬇️) in the address bar</li>
+                    <li>2. Click the icon and select <strong>"Install"</strong></li>
+                    <li>3. The app will be installed on your computer! 🎉</li>
+                `;
+            }
+            modal.classList.add('show');
+        }
+        
+        function closeInstallModal() {
+            document.getElementById('installModal').classList.remove('show');
+        }
+        
+        function closeInstallPrompt() {
+            document.getElementById('installPrompt').classList.remove('show');
+        }
+        
+        // ============================================
+        // ONLINE/OFFLINE DETECTION
+        // ============================================
+        function updateOnlineStatus() {
+            const indicator = document.getElementById('offlineIndicator');
+            if (!navigator.onLine) {
+                indicator.classList.add('show');
+            } else {
+                indicator.classList.remove('show');
+            }
+        }
+        
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
+        
+        // ============================================
+        // MULTI-LANGUAGE TRANSLATIONS
+        // ============================================
+        const translations = {
+            en: {
+                tagline: "Connect multiple devices, listen together globally!",
+                createRoomTitle: "Create Room",
+                joinRoomTitle: "Join Room",
+                createRoomBtn: "🚀 Create Bluetooth Connector",
+                joinRoomBtn: "🎧 Connect Device",
+                activeRoomTitle: "Your Room",
+                roomCodeLabel: "Room Code",
+                connectedDevicesLabel: "Connected Devices",
+                deviceListTitle: "📱 Connected Devices:",
+                mediaControlsTitle: "Control Playback",
+                startPlaybackBtn: "▶️ Start Streaming",
+                pausePlaybackBtn: "⏸️ Pause",
+                volumeLabel: "🔊 Volume:",
+                memberPlaybackTitle: "Listening/Watching",
+                deviceNamePlaceholder: "Your device name (e.g., John's iPhone)",
+                roomNamePlaceholder: "Room name (e.g., Movie Night)",
+                joinRoomIdPlaceholder: "Enter Room Code",
+                joinDeviceNamePlaceholder: "Your name",
+                mediaUrlPlaceholder: "Media URL (YouTube, MP3, MP4, etc.)",
+                notifications: {
+                    roomCreated: "Room created! Code: ",
+                    roomJoined: "Successfully joined room!",
+                    joined: "joined the room!",
+                    left: "left the room!",
+                    playbackStarted: "Streaming started!",
+                    roomClosed: "Room closed by host!",
+                    copySuccess: "Room code copied!",
+                    invalidCode: "Please enter a room code!",
+                    invalidUrl: "Please enter a media URL!"
+                }
+            },
+            sw: {
+                tagline: "Unganisha vifaa vingi, sikilizeni pamoja duniani kote!",
+                createRoomTitle: "Unda Kikundi",
+                joinRoomTitle: "Ungana na Kikundi",
+                createRoomBtn: "🚀 Unda Bluetooth Connector",
+                joinRoomBtn: "🎧 Unganisha Kifaa",
+                activeRoomTitle: "Kikundi Chako",
+                roomCodeLabel: "Kodi ya Kikundi",
+                connectedDevicesLabel: "Vifaa Vilivyoungana",
+                deviceListTitle: "📱 Vifaa Vilivyoungana:",
+                mediaControlsTitle: "Dhibiti Matayarisho",
+                startPlaybackBtn: "▶️ Anza Kupeperusha",
+                pausePlaybackBtn: "⏸️ Simamisha",
+                volumeLabel: "🔊 Kiwango cha Sauti:",
+                memberPlaybackTitle: "Unasikiliza/Unaangalia",
+                deviceNamePlaceholder: "Jina la kifaa chako (mfano, iPhone ya John)",
+                roomNamePlaceholder: "Jina la kikundi (mfano, Sinema Usiku)",
+                joinRoomIdPlaceholder: "Weka Kodi ya Kikundi",
+                joinDeviceNamePlaceholder: "Jina lako",
+                mediaUrlPlaceholder: "URL ya media (YouTube, MP3, MP4, n.k.)",
+                notifications: {
+                    roomCreated: "Kikundi kimeundwa! Kodi: ",
+                    roomJoined: "Umeunganishwa kwenye kikundi!",
+                    joined: "amejiunga na kikundi!",
+                    left: "ametoka kwenye kikundi!",
+                    playbackStarted: "Matayarisho yameanza!",
+                    roomClosed: "Kikundi kimefungwa na mwenyeji!",
+                    copySuccess: "Kodi ya kikundi imenakiliwa!",
+                    invalidCode: "Tafadhali weka kodi ya kikundi!",
+                    invalidUrl: "Tafadhali weka URL ya media!"
+                }
+            },
+            fr: {
+                tagline: "Connectez plusieurs appareils, écoutez ensemble globalement!",
+                createRoomTitle: "Créer une Salle",
+                joinRoomTitle: "Rejoindre une Salle",
+                createRoomBtn: "🚀 Créer Bluetooth Connector",
+                joinRoomBtn: "🎧 Connecter l'Appareil",
+                activeRoomTitle: "Votre Salle",
+                roomCodeLabel: "Code Salle",
+                connectedDevicesLabel: "Appareils Connectés",
+                deviceListTitle: "📱 Appareils Connectés:",
+                mediaControlsTitle: "Contrôler la Lecture",
+                startPlaybackBtn: "▶️ Démarrer",
+                pausePlaybackBtn: "⏸️ Pause",
+                volumeLabel: "🔊 Volume:",
+                memberPlaybackTitle: "Écoute/Regarde",
+                deviceNamePlaceholder: "Nom de l'appareil (ex: iPhone de John)",
+                roomNamePlaceholder: "Nom de la salle (ex: Soirée Film)",
+                joinRoomIdPlaceholder: "Entrez le Code Salle",
+                joinDeviceNamePlaceholder: "Votre nom",
+                mediaUrlPlaceholder: "URL du média (YouTube, MP3, MP4, etc.)",
+                notifications: {
+                    roomCreated: "Salle créée! Code: ",
+                    roomJoined: "Vous avez rejoint la salle!",
+                    joined: "a rejoint la salle!",
+                    left: "a quitté la salle!",
+                    playbackStarted: "Lecture démarrée!",
+                    roomClosed: "Salle fermée par l'hôte!",
+                    copySuccess: "Code salle copié!",
+                    invalidCode: "Veuillez entrer un code salle!",
+                    invalidUrl: "Veuillez entrer une URL média!"
+                }
+            },
+            es: {
+                tagline: "¡Conecta múltiples dispositivos, escuchen juntos globalmente!",
+                createRoomTitle: "Crear Sala",
+                joinRoomTitle: "Unirse a Sala",
+                createRoomBtn: "🚀 Crear Bluetooth Connector",
+                joinRoomBtn: "🎧 Conectar Dispositivo",
+                activeRoomTitle: "Tu Sala",
+                roomCodeLabel: "Código de Sala",
+                connectedDevicesLabel: "Dispositivos Conectados",
+                deviceListTitle: "📱 Dispositivos Conectados:",
+                mediaControlsTitle: "Controlar Reproducción",
+                startPlaybackBtn: "▶️ Iniciar",
+                pausePlaybackBtn: "⏸️ Pausa",
+                volumeLabel: "🔊 Volumen:",
+                memberPlaybackTitle: "Escuchando/Viendo",
+                deviceNamePlaceholder: "Nombre del dispositivo (ej: iPhone de John)",
+                roomNamePlaceholder: "Nombre de sala (ej: Noche de Cine)",
+                joinRoomIdPlaceholder: "Ingrese Código de Sala",
+                joinDeviceNamePlaceholder: "Tu nombre",
+                mediaUrlPlaceholder: "URL del medio (YouTube, MP3, MP4, etc.)",
+                notifications: {
+                    roomCreated: "¡Sala creada! Código: ",
+                    roomJoined: "¡Te has unido a la sala!",
+                    joined: "se unió a la sala!",
+                    left: "salió de la sala!",
+                    playbackStarted: "¡Reproducción iniciada!",
+                    roomClosed: "¡Sala cerrada por el anfitrión!",
+                    copySuccess: "¡Código de sala copiado!",
+                    invalidCode: "¡Por favor ingrese un código de sala!",
+                    invalidUrl: "¡Por favor ingrese una URL de medio!"
+                }
+            }
+        };
+
+        let currentLang = 'en';
+        let socket = null;
+        let currentRoom = null;
+        let isCreator = false;
+        let currentMediaElement = null;
+
+        function toggleLanguageDropdown() {
+            document.querySelector('.language-selector').classList.toggle('active');
+        }
+
+        function changeLanguage(lang, flag, name) {
+            currentLang = lang;
+            document.getElementById('currentLangFlag').innerText = flag;
+            document.getElementById('currentLangName').innerText = name;
+            document.querySelector('.language-selector').classList.remove('active');
+            updateUILanguage();
+        }
+
+        function updateUILanguage() {
+            const t = translations[currentLang];
+            if (!t) return;
+            document.getElementById('tagline').innerText = t.tagline;
+            document.getElementById('createRoomTitle').innerText = t.createRoomTitle;
+            document.getElementById('joinRoomTitle').innerText = t.joinRoomTitle;
+            document.getElementById('createRoomBtn').innerText = t.createRoomBtn;
+            document.getElementById('joinRoomBtn').innerText = t.joinRoomBtn;
+            document.getElementById('activeRoomTitle').innerText = t.activeRoomTitle;
+            document.getElementById('roomCodeLabel').innerHTML = t.roomCodeLabel;
+            document.getElementById('connectedDevicesLabel').innerHTML = t.connectedDevicesLabel;
+            document.getElementById('deviceListTitle').innerHTML = t.deviceListTitle;
+            document.getElementById('mediaControlsTitle').innerHTML = t.mediaControlsTitle;
+            document.getElementById('startPlaybackBtn').innerHTML = t.startPlaybackBtn;
+            document.getElementById('pausePlaybackBtn').innerHTML = t.pausePlaybackBtn;
+            document.getElementById('volumeLabel').innerHTML = t.volumeLabel;
+            document.getElementById('memberPlaybackTitle').innerHTML = t.memberPlaybackTitle;
+            document.getElementById('deviceName').placeholder = t.deviceNamePlaceholder;
+            document.getElementById('roomName').placeholder = t.roomNamePlaceholder;
+            document.getElementById('joinRoomId').placeholder = t.joinRoomIdPlaceholder;
+            document.getElementById('joinDeviceName').placeholder = t.joinDeviceNamePlaceholder;
+            document.getElementById('mediaUrl').placeholder = t.mediaUrlPlaceholder;
+        }
+
+        function initSocket() {
+            socket = io();
+            socket.on('room-created', (data) => {
+                currentRoom = data.roomId;
+                isCreator = true;
+                showActiveRoom();
+                document.getElementById('displayRoomCode').innerText = data.roomId;
+                document.getElementById('maxDevices').innerText = data.maxDevices;
+                showNotification(translations[currentLang].notifications.roomCreated + data.roomId, 'success');
+            });
+            socket.on('joined-room', (data) => {
+                currentRoom = data.roomId;
+                isCreator = false;
+                showActiveRoom();
+                document.getElementById('displayRoomCode').innerText = data.roomId;
+                document.getElementById('maxDevices').innerText = data.maxDevices;
+                showNotification(translations[currentLang].notifications.roomJoined, 'success');
+            });
+            socket.on('room-update', (data) => {
+                updateDeviceList(data.devices);
+                document.getElementById('deviceCount').innerText = data.deviceCount;
+            });
+            socket.on('device-joined', (data) => {
+                updateDeviceList(data.devices);
+                document.getElementById('deviceCount').innerText = data.deviceCount;
+                showNotification(`${data.deviceName} ${translations[currentLang].notifications.joined}`, 'info');
+            });
+            socket.on('device-left', (data) => {
+                document.getElementById('deviceCount').innerText = data.deviceCount;
+                showNotification(`${data.deviceName} ${translations[currentLang].notifications.left}`, 'info');
+            });
+            socket.on('playback-started', (data) => {
+                if (!isCreator) loadMedia(data.media);
+                showNotification(translations[currentLang].notifications.playbackStarted, 'success');
+            });
+            socket.on('sync-time', (data) => {
+                if (!isCreator && currentMediaElement) currentMediaElement.currentTime = data.currentTime;
+            });
+            socket.on('playback-paused', () => {
+                if (!isCreator && currentMediaElement) currentMediaElement.pause();
+            });
+            socket.on('volume-adjusted', (data) => {
+                if (!isCreator && currentMediaElement) currentMediaElement.volume = data.volume / 100;
+            });
+            socket.on('room-closed', () => {
+                showNotification(translations[currentLang].notifications.roomClosed, 'error');
+                resetUI();
+            });
+            socket.on('error', (data) => {
+                showNotification(data.message, 'error');
+            });
+        }
+
+        function createRoom() {
+            const deviceName = document.getElementById('deviceName').value || 'Anonymous Device';
+            const roomName = document.getElementById('roomName').value || 'My Room';
+            if (!socket) initSocket();
+            socket.emit('create-room', { deviceName, roomName });
+        }
+
+        function joinRoom() {
+            const roomId = document.getElementById('joinRoomId').value.toUpperCase();
+            const deviceName = document.getElementById('joinDeviceName').value || 'Guest Device';
+            if (!roomId) {
+                showNotification(translations[currentLang].notifications.invalidCode, 'error');
+                return;
+            }
+            if (!socket) initSocket();
+            socket.emit('join-room', { roomId, deviceName });
+        }
+
+        function startPlayback() {
+            const mediaType = document.getElementById('mediaType').value;
+            const mediaUrl = document.getElementById('mediaUrl').value;
+            if (!mediaUrl) {
+                showNotification(translations[currentLang].notifications.invalidUrl, 'error');
+                return;
+            }
+            socket.emit('start-playback', { roomId: currentRoom, mediaUrl, mediaType });
+        }
+
+        function pausePlayback() {
+            socket.emit('pause-playback', { roomId: currentRoom });
+        }
+
+        function adjustVolume() {
+            const volume = document.getElementById('volumeControl').value;
+            socket.emit('adjust-volume', { roomId: currentRoom, volume });
+            if (isCreator && currentMediaElement) currentMediaElement.volume = volume / 100;
+        }
+
+        function loadMedia(media) {
+            const container = document.getElementById('memberMediaPlayer');
+            if (media.type === 'audio') {
+                container.innerHTML = `<audio controls id="memberAudio" src="${media.url}"></audio>`;
+                currentMediaElement = document.getElementById('memberAudio');
+            } else {
+                container.innerHTML = `<video controls id="memberVideo" src="${media.url}"></video>`;
+                currentMediaElement = document.getElementById('memberVideo');
+            }
+            if (currentMediaElement) {
+                currentMediaElement.addEventListener('timeupdate', () => {
+                    if (!isCreator) socket.emit('sync-position', { roomId: currentRoom, currentTime: currentMediaElement.currentTime });
+                });
+            }
+            document.getElementById('memberPlayback').classList.add('active');
+        }
+
+        function updateDeviceList(devices) {
+            const container = document.getElementById('deviceList');
+            container.innerHTML = `<h4>${translations[currentLang].deviceListTitle}</h4>`;
+            devices.forEach(device => {
+                container.innerHTML += `<div class="device-item"><div><span class="device-badge"></span>${device.deviceName}</div><small>Connected</small></div>`;
+            });
+        }
+
+        function showActiveRoom() {
+            document.getElementById('createRoomCard').style.display = 'none';
+            document.getElementById('joinRoomCard').style.display = 'none';
+            document.getElementById('activeRoomCard').style.display = 'block';
+            if (isCreator) {
+                document.getElementById('mediaControls').classList.add('active');
+            } else {
+                document.getElementById('memberPlayback').classList.add('active');
+            }
+        }
+
+        function copyRoomCode() {
+            const code = document.getElementById('displayRoomCode').innerText;
+            navigator.clipboard.writeText(code);
+            showNotification(translations[currentLang].notifications.copySuccess, 'success');
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: ${type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : '#3b82f6'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 10px;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                font-weight: bold;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            `;
+            notification.innerText = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        function resetUI() {
+            currentRoom = null;
+            isCreator = false;
+            document.getElementById('createRoomCard').style.display = 'block';
+            document.getElementById('joinRoomCard').style.display = 'block';
+            document.getElementById('activeRoomCard').style.display = 'none';
+            document.getElementById('mediaControls').classList.remove('active');
+            document.getElementById('memberPlayback').classList.remove('active');
+        }
+
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'displayRoomCode') copyRoomCode();
+        });
+
+        const style = document.createElement('style');
+        style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`;
+        document.head.appendChild(style);
+
+        initSocket();
+        
+        fetch('/api/rooms').then(res => res.json()).then(data => {
+            document.getElementById('modeBadge').innerHTML = data.isFreeMode ? '🌍 Mode: Free (Up to 50 devices)' : '⭐ Mode: Premium';
+        });
+    </script>
+</body>
+</html>
