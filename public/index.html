@@ -14,7 +14,64 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BT Connector">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23667eea'/%3E%3Ctext x='50' y='67' font-size='50' text-anchor='middle' fill='white'%3E🎧%3C/text%3E%3C/svg%3E">
+    
+    <!-- Dynamic Icons for PWA (Generated via Canvas - No external files needed) -->
+    <script>
+        // Generate PWA icons dynamically using Canvas
+        (function generateIcons() {
+            const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+            const iconCache = {};
+            
+            function generateIcon(size) {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                
+                // Background gradient
+                const gradient = ctx.createLinearGradient(0, 0, size, size);
+                gradient.addColorStop(0, '#667eea');
+                gradient.addColorStop(1, '#764ba2');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, size, size);
+                
+                // Draw circle background
+                ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                ctx.beginPath();
+                ctx.arc(size/2, size/2, size * 0.35, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw Bluetooth symbol
+                ctx.fillStyle = '#667eea';
+                ctx.font = `${size * 0.4}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('🎧', size/2, size/2);
+                
+                return canvas.toDataURL();
+            }
+            
+            // Pre-generate icons and add to head as link tags
+            sizes.forEach(size => {
+                const iconDataURL = generateIcon(size);
+                const link = document.createElement('link');
+                link.rel = 'apple-touch-icon';
+                link.sizes = `${size}x${size}`;
+                link.href = iconDataURL;
+                document.head.appendChild(link);
+            });
+            
+            // Also add to manifest via JavaScript
+            const manifestIcons = sizes.map(size => ({
+                src: generateIcon(size),
+                sizes: `${size}x${size}`,
+                type: 'image/png'
+            }));
+            
+            // Store for service worker
+            window.__pwaIcons = manifestIcons;
+        })();
+    </script>
     
     <!-- SEO Meta Tags -->
     <meta name="description" content="Connect multiple devices, listen together globally! Sync audio/video across all devices. Watch movies, listen to music with friends in perfect sync.">
@@ -368,9 +425,34 @@
             padding: 8px 20px;
             margin: 0;
         }
+
+        /* Offline Indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #ef4444;
+            color: white;
+            text-align: center;
+            padding: 5px;
+            font-size: 12px;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+
+        .offline-indicator.show {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
+    <!-- Offline Indicator -->
+    <div class="offline-indicator" id="offlineIndicator">
+        📡 You are offline. Some features may be limited.
+    </div>
+
     <!-- PWA Install Prompt -->
     <div class="install-prompt" id="installPrompt">
         <span>📱 Install Bluetooth Connector app for better experience!</span>
@@ -482,6 +564,10 @@
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                         console.log('User accepted the install prompt');
+                        // Track installation
+                        if (typeof gtag !== 'undefined') {
+                            gtag('event', 'pwa_installed');
+                        }
                     }
                     deferredPrompt = null;
                     document.getElementById('installPrompt').classList.remove('show');
@@ -492,6 +578,20 @@
         function closeInstallPrompt() {
             document.getElementById('installPrompt').classList.remove('show');
         }
+        
+        // Online/Offline detection
+        function updateOnlineStatus() {
+            const indicator = document.getElementById('offlineIndicator');
+            if (!navigator.onLine) {
+                indicator.classList.add('show');
+            } else {
+                indicator.classList.remove('show');
+            }
+        }
+        
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
         
         // Multi-language translations
         const translations = {
@@ -981,12 +1081,58 @@
             .then(data => {
                 document.getElementById('modeBadge').innerHTML = data.isFreeMode ? '🌍 Mode: Free (Up to 50 devices)' : '⭐ Mode: Premium';
             });
-            
+        
+        // Service Worker Registration with cache first strategy
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').then(reg => {
-                console.log('Service Worker registered:', reg);
-            }).catch(err => {
-                console.log('Service Worker registration failed:', err);
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(reg => {
+                    console.log('Service Worker registered successfully:', reg);
+                    
+                    // Check for updates
+                    reg.onupdatefound = () => {
+                        const installingWorker = reg.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed') {
+                                if (navigator.serviceWorker.controller) {
+                                    console.log('New content available, refresh to update');
+                                    // Show update notification
+                                    const updateNotification = document.createElement('div');
+                                    updateNotification.style.cssText = `
+                                        position: fixed;
+                                        bottom: 20px;
+                                        left: 20px;
+                                        right: 20px;
+                                        background: #667eea;
+                                        color: white;
+                                        padding: 12px;
+                                        border-radius: 10px;
+                                        text-align: center;
+                                        z-index: 1000;
+                                        cursor: pointer;
+                                    `;
+                                    updateNotification.innerHTML = '🔄 New update available! Click to refresh.';
+                                    updateNotification.onclick = () => window.location.reload();
+                                    document.body.appendChild(updateNotification);
+                                    setTimeout(() => updateNotification.remove(), 10000);
+                                }
+                            }
+                        };
+                    };
+                }).catch(err => {
+                    console.log('Service Worker registration failed:', err);
+                });
+            });
+        }
+        
+        // Cache API for offline support
+        if ('caches' in window) {
+            caches.open('bt-connector-v1').then(cache => {
+                cache.addAll([
+                    '/',
+                    '/index.html',
+                    '/manifest.json',
+                    '/socket.io/socket.io.js'
+                ]);
             });
         }
     </script>
