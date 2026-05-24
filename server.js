@@ -1,4 +1,4 @@
-// server.js - Full PWA Support with custom logo
+// server.js - Full PWA Support (Root files only - no public folder)
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
@@ -18,11 +18,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from root (manifest, sw.js, sitemap.xml)
+// Serve static files from root directory (where server.js is)
 app.use(express.static(__dirname));
-
-// Serve static files from public folder (images, html files)
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Environment Variables
 const PORT = process.env.PORT || 3000;
@@ -109,12 +106,12 @@ app.get('/health', (req, res) => {
   });
 });
 
-// PWA Manifest
+// PWA Manifest - send from root
 app.get('/manifest.json', (req, res) => {
   res.sendFile(path.join(__dirname, 'manifest.json'));
 });
 
-// Service Worker
+// Service Worker - send from root
 app.get('/sw.js', (req, res) => {
   res.setHeader('Content-Type', 'application/javascript');
   res.setHeader('Service-Worker-Allowed', '/');
@@ -129,6 +126,20 @@ User-agent: *
 Allow: /
 Sitemap: https://${req.headers.host}/sitemap.xml
   `);
+});
+
+// Sitemap.xml
+app.get('/sitemap.xml', (req, res) => {
+  res.type('application/xml');
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://${req.headers.host}/</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>`);
 });
 
 // Socket.IO Connection
@@ -234,7 +245,7 @@ io.on('connection', (socket) => {
 
 // Serve frontend - catch all route
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Error handling middleware
