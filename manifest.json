@@ -40,15 +40,5 @@
       "url": "/?action=join",
       "icons": [{ "src": "/zas.png", "sizes": "96x96" }]
     }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshots/mobile.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "platform": "android"
-    }
-  ],
-  "related_applications": [],
-  "prefer_related_applications": false
+  ]
 }
