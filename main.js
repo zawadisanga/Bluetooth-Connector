@@ -1,17 +1,10 @@
 // main.js - Bluetooth Connector Desktop App
 const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const path = require('path');
-const { exec } = require('child_process');
-
-// Handle creating/removing shortcuts on Windows when installing/uninstalling
-if (require('electron-squirrel-startup')) {
-    app.quit();
-}
 
 let mainWindow = null;
 
 function createWindow() {
-    // Create the browser window
     mainWindow = new BrowserWindow({
         width: 1280,
         height: 800,
@@ -23,12 +16,12 @@ function createWindow() {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js')
         },
-        titleBarStyle: 'default',
         show: false,
-        backgroundColor: '#667eea'
+        backgroundColor: '#667eea',
+        title: 'Bluetooth Connector'
     });
 
-    // Load the web app
+    // Load your web app (Heroku or local)
     mainWindow.loadURL('https://bluetooth.zass.website');
 
     // Show window when ready
@@ -37,13 +30,13 @@ function createWindow() {
         mainWindow.focus();
     });
 
-    // Handle external links (open in default browser)
+    // Open external links in default browser
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         shell.openExternal(url);
         return { action: 'deny' };
     });
 
-    // Create custom menu
+    // Create menu
     const menuTemplate = [
         {
             label: 'File',
@@ -65,9 +58,7 @@ function createWindow() {
                 { type: 'separator' },
                 {
                     label: 'Exit',
-                    click: () => {
-                        app.quit();
-                    },
+                    click: () => { app.quit(); },
                     accelerator: 'CmdOrCtrl+Q'
                 }
             ]
@@ -75,50 +66,14 @@ function createWindow() {
         {
             label: 'View',
             submenu: [
-                {
-                    label: 'Reload',
-                    click: () => {
-                        mainWindow.reload();
-                    },
-                    accelerator: 'CmdOrCtrl+R'
-                },
-                {
-                    label: 'Toggle Full Screen',
-                    click: () => {
-                        mainWindow.setFullScreen(!mainWindow.isFullScreen());
-                    },
-                    accelerator: 'F11'
-                },
+                { label: 'Reload', accelerator: 'CmdOrCtrl+R', click: () => { mainWindow.reload(); } },
+                { label: 'Toggle Full Screen', accelerator: 'F11', click: () => { mainWindow.setFullScreen(!mainWindow.isFullScreen()); } },
                 { type: 'separator' },
-                {
-                    label: 'Zoom In',
-                    click: () => {
-                        mainWindow.webContents.zoomFactor += 0.1;
-                    },
-                    accelerator: 'CmdOrCtrl+Plus'
-                },
-                {
-                    label: 'Zoom Out',
-                    click: () => {
-                        mainWindow.webContents.zoomFactor -= 0.1;
-                    },
-                    accelerator: 'CmdOrCtrl+-'
-                },
-                {
-                    label: 'Reset Zoom',
-                    click: () => {
-                        mainWindow.webContents.zoomFactor = 1.0;
-                    },
-                    accelerator: 'CmdOrCtrl+0'
-                },
+                { label: 'Zoom In', accelerator: 'CmdOrCtrl+Plus', click: () => { mainWindow.webContents.zoomFactor += 0.1; } },
+                { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-', click: () => { mainWindow.webContents.zoomFactor -= 0.1; } },
+                { label: 'Reset Zoom', accelerator: 'CmdOrCtrl+0', click: () => { mainWindow.webContents.zoomFactor = 1.0; } },
                 { type: 'separator' },
-                {
-                    label: 'Developer Tools',
-                    click: () => {
-                        mainWindow.webContents.openDevTools();
-                    },
-                    accelerator: 'F12'
-                }
+                { label: 'Developer Tools', accelerator: 'F12', click: () => { mainWindow.webContents.openDevTools(); } }
             ]
         },
         {
@@ -139,15 +94,7 @@ function createWindow() {
                 { type: 'separator' },
                 {
                     label: 'Website',
-                    click: () => {
-                        shell.openExternal('https://bluetooth.zass.website');
-                    }
-                },
-                {
-                    label: 'Report Issue',
-                    click: () => {
-                        shell.openExternal('https://github.com/yourusername/bluetooth-connector/issues');
-                    }
+                    click: () => { shell.openExternal('https://bluetooth.zass.website'); }
                 }
             ]
         }
@@ -156,42 +103,28 @@ function createWindow() {
     const menu = Menu.buildFromTemplate(menuTemplate);
     Menu.setApplicationMenu(menu);
 
-    // Handle window close
-    mainWindow.on('closed', () => {
-        mainWindow = null;
-    });
+    mainWindow.on('closed', () => { mainWindow = null; });
 }
 
-// Get icon name based on platform
 function getIconName() {
     switch (process.platform) {
-        case 'win32':
-            return 'icon.ico';
-        case 'darwin':
-            return 'icon.icns';
-        default:
-            return 'icon.png';
+        case 'win32': return 'icon.ico';
+        case 'darwin': return 'icon.icns';
+        default: return 'icon.png';
     }
 }
 
-// App event handlers
-app.whenReady().then(() => {
-    createWindow();
-});
+app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
+    if (process.platform !== 'darwin') app.quit();
 });
 
 app.on('activate', () => {
-    if (mainWindow === null) {
-        createWindow();
-    }
+    if (mainWindow === null) createWindow();
 });
 
-// Handle second instance
+// Single instance lock
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
     app.quit();
