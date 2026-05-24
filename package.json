@@ -21,3 +21,37 @@
     "nodemon": "^2.0.20"
   }
 }
+
+
+{
+  "name": "bluetooth-connector-desktop",
+  "version": "1.0.0",
+  "description": "Desktop client",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "dist": "electron-builder --publish never"
+  },
+  "author": {
+    "name": "Zawadi Sanga",
+    "email": "zawadi@example.com"
+  },
+  "homepage": "https://bluetooth.zass.website",
+  "build": {
+    "appId": "com.zass.bluetoothconnector",
+    "productName": "Bluetooth Connector",
+    "directories": {
+      "output": "dist"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "AudioVideo",
+      "maintainer": "Zawadi Sanga <zawadi@example.com>"
+    }
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  }
+}
