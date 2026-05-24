@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Bluetooth Connector - Global Sync Audio/Video Platform</title>
     
+    <!-- Google Search Console Verification -->
+    <meta name="google-site-verification" content="CODE_YAKO">
+    
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#667eea">
@@ -23,15 +26,15 @@
     <meta property="og:title" content="Bluetooth Connector - Sync Audio/Video Together">
     <meta property="og:description" content="Connect with friends, listen to music or watch movies together in sync! Create a room and share the code.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://your-app.herokuapp.com">
-    <meta property="og:image" content="https://your-app.herokuapp.com/og-image.png">
+    <meta property="og:url" content="https://bluetooth.zass.website">
+    <meta property="og:image" content="https://bluetooth.zass.website/og-image.png">
     <meta property="og:site_name" content="Bluetooth Connector">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Bluetooth Connector - Sync Audio/Video Together">
     <meta name="twitter:description" content="Connect with friends, listen to music or watch movies together in sync!">
-    <meta name="twitter:image" content="https://your-app.herokuapp.com/twitter-image.png">
+    <meta name="twitter:image" content="https://bluetooth.zass.website/twitter-image.png">
     
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YOUR-ID"></script>
@@ -704,7 +707,6 @@
             document.querySelector('.language-selector').classList.remove('active');
             updateUILanguage();
             
-            // Track language change in analytics
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'language_change', { 'language': lang });
             }
@@ -748,7 +750,6 @@
                 document.getElementById('maxDevices').innerText = data.maxDevices;
                 showNotification(translations[currentLang].notifications.roomCreated + data.roomId, 'success');
                 
-                // Track room creation
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'room_created', { 'room_id': data.roomId });
                 }
@@ -952,14 +953,12 @@
             document.getElementById('memberPlayback').classList.remove('active');
         }
 
-        // Add click to copy room code
         document.addEventListener('click', function(e) {
             if (e.target.id === 'displayRoomCode') {
                 copyRoomCode();
             }
         });
 
-        // Add animation style
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideIn {
@@ -975,17 +974,14 @@
         `;
         document.head.appendChild(style);
 
-        // Initialize
         initSocket();
         
-        // Fetch mode
         fetch('/api/rooms')
             .then(res => res.json())
             .then(data => {
                 document.getElementById('modeBadge').innerHTML = data.isFreeMode ? '🌍 Mode: Free (Up to 50 devices)' : '⭐ Mode: Premium';
             });
             
-        // Register Service Worker for PWA
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js').then(reg => {
                 console.log('Service Worker registered:', reg);
