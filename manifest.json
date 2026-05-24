@@ -1,16 +1,13 @@
 {
   "name": "Bluetooth Connector",
   "short_name": "BT Connector",
-  "description": "Connect multiple devices, listen together globally! Sync audio/video across all devices.",
+  "description": "Connect multiple devices, listen together globally!",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#667eea",
   "background_color": "#667eea",
   "orientation": "portrait",
   "scope": "/",
-  "lang": "en",
-  "dir": "ltr",
-  "categories": ["entertainment", "music", "social", "communication"],
   "icons": [
     {
       "src": "/zas.png",
@@ -23,22 +20,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Create Room",
-      "short_name": "Create",
-      "description": "Start a new listening room",
-      "url": "/?action=create",
-      "icons": [{ "src": "/zas.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Join Room",
-      "short_name": "Join",
-      "description": "Join existing room",
-      "url": "/?action=join",
-      "icons": [{ "src": "/zas.png", "sizes": "96x96" }]
     }
   ]
 }
